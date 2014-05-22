@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<wonderland-module>
+    <name>item-component</name>
+    <version>
+        <major>0</major>
+        <minor>1</minor>
+        <mini>0</mini>
+    </version>
+    <description>Makes an item out of an object.</description>
+</wonderland-module>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<wonderland-module>
+    <name>storyComponent</name>
+    <version>
+        <major>0</major>
+        <minor>1</minor>
+        <mini>0</mini>
+    </version>
+    <description>used to show story or infos, requires logbook plugin</description>
+</wonderland-module>
