@@ -6,10 +6,6 @@
             <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/inventory/src/classes/org/jdesktop/wonderland/modules/inventory/client/InventoryClientPlugin.java</file>
             <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/inventory/src/classes/org/jdesktop/wonderland/modules/inventory/client/InventoryManager.java</file>
         </group>
-        <group name="LISA">
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/inventory/src/classes/org/jdesktop/wonderland/modules/inventory/client/InventoryClientPlugin.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/inventory/src/classes/org/jdesktop/wonderland/modules/inventory/client/ItemPanel.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/inventory/src/classes/org/jdesktop/wonderland/modules/inventory/client/InventoryManager.java</file>
-        </group>
+        <group name="LISA"/>
     </open-files>
 </project-private>

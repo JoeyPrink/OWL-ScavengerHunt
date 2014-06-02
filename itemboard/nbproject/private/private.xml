@@ -3,13 +3,7 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group name="LISA">
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemboardControlPanel.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemboardSelection.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemboardMouseListener.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/nbproject/project.xml</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemboardWindow.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/common/ItemboardUtils.java</file>
-            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemboardDocument.java</file>
+            <file>file:/U:/12.%20Semester/Masterarbeit/Wonderland_0.5/home/src/wonderland/trunk/wonderland-modules/LISA/itemboard/src/classes/org/jdesktop/wonderland/modules/itemboard/client/ItemChooserPanel.java</file>
         </group>
     </open-files>
 </project-private>

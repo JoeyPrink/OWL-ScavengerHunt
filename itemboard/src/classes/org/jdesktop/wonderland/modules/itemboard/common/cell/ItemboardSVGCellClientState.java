@@ -26,6 +26,9 @@ import org.jdesktop.wonderland.modules.appbase.common.cell.App2DCellClientState;
  * Container for whiteboard cell data
  *
  * @author nsimpson,deronj
+ *
+ * adapted an reused for the itemboard by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @ExperimentalAPI
 public class ItemboardSVGCellClientState extends App2DCellClientState

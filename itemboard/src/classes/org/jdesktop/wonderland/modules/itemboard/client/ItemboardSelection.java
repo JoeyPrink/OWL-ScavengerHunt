@@ -28,8 +28,13 @@ import org.jdesktop.wonderland.modules.itemboard.common.ItemboardUtils;
 import org.w3c.dom.Element;
 
 /**
+ * Manages selection for whiteboard. Class originally implemented for the
+ * whiteboard module by
  *
  * @author jbarratt
+ *
+ * Class is also used and was extended for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardSelection
 {

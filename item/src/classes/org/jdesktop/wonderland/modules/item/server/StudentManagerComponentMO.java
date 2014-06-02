@@ -27,9 +27,16 @@ import org.jdesktop.wonderland.server.cell.annotation.NoSnapshot;
 import org.jdesktop.wonderland.server.comms.WonderlandClientID;
 
 /**
- * Server side cell component for admin tools
+ * Server side cell component for StudentManager component. Does nothing but is
+ * needed so that admin user avatars can be provided with the StudentManager
+ * capability.
+ *
+ * Idea based on admin tools by
  *
  * @author Jonathan Kaplan <jonathankap@gmail.com>
+ *
+ * adapted by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @NoSnapshot
 public class StudentManagerComponentMO extends CellComponentMO

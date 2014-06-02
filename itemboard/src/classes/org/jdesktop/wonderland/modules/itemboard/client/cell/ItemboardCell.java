@@ -41,10 +41,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 /**
- * Client Cell for SVG Whiteboard application.
+ * Client Cell for SVG Whiteboard application, originally implemented for the
+ * whiteboard module by
  *
  * @author nsimpson
  * @author jbarratt
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardCell extends App2DCell
 {

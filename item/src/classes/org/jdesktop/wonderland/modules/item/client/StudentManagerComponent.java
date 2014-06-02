@@ -24,9 +24,17 @@ import org.jdesktop.wonderland.common.cell.CellStatus;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 
 /**
- * Cell component for admin tools
+ * StudentManager cell component. Gets added by a server plugin to avatars of
+ * users who have admin rights. When a user wants to open the panel to manage
+ * students the presence of this component can be checked in order to determine
+ * if the panel should be opened.
+ *
+ * Idea based on admin tools by
  *
  * @author Jonathan Kaplan <jonathankap@gmail.com>
+ *
+ * adapted by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class StudentManagerComponent extends CellComponent
 {

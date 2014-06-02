@@ -36,9 +36,16 @@ import org.jdesktop.wonderland.server.spatial.CellMOListener;
 import org.jdesktop.wonderland.server.spatial.UniverseManager;
 
 /**
- * Server plugin for admin tools
+ * Server plugin for StudentManager component. Asks for every avatar cell if the
+ * user is part of the admin group and, if yes, adds the StudentManagerComponent
+ * to the avatar cell.
+ *
+ * Idea based on admin tools by
  *
  * @author Jonathan Kaplan <jonathankap@gmail.com>
+ *
+ * adapted by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @Plugin
 public class StudentManagerServerPlugin

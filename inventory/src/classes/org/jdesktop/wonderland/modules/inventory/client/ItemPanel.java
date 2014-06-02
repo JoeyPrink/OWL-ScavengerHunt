@@ -12,7 +12,6 @@ import javax.swing.JTextPane;
  * @author Pirmin Riedmann
  *
  * adapted by
- *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemPanel extends javax.swing.JPanel

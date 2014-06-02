@@ -81,11 +81,13 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 /**
- *
- * An SVG Whiteboard application
+ * An SVG Whiteboard application by
  *
  * @author nsimpson
  * @author jbarratt
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @ExperimentalAPI
 public class ItemboardWindow extends Window2D

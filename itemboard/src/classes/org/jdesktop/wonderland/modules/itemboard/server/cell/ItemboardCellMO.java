@@ -44,6 +44,9 @@ import org.w3c.dom.Element;
  *
  * @author nsimpson
  * @author jbarratt
+ *
+ * adapted an reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardCellMO extends App2DCellMO
 {

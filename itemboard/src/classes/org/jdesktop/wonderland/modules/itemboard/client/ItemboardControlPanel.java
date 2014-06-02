@@ -36,8 +36,12 @@ import org.jdesktop.wonderland.modules.itemboard.client.ItemboardToolManager.Ite
 import org.jdesktop.wonderland.modules.itemboard.client.ItemboardToolManager.ItemboardTool;
 
 /**
+ * ItemboardControlPanel taken from the whiteboard module by
  *
  * @author nsimpson
+ *
+ * extended to display an additional menu item for adding items to the board by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardControlPanel extends javax.swing.JPanel implements CellMenu
 {

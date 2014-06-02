@@ -32,6 +32,9 @@ import org.jdesktop.wonderland.modules.itemboard.common.cell.ItemboardCellMessag
  * be connected to the cell prior to construction.
  *
  * @author deronj
+ *
+ * adapted and reused for itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @ExperimentalAPI
 public class ItemboardComponent extends CellComponent
@@ -102,7 +105,7 @@ public class ItemboardComponent extends CellComponent
             channelComp.addMessageReceiver(ItemboardCellMessage.class, msgReceiver);
           }
 
-                    // Must do *after* registering the listener.
+          // Must do *after* registering the listener.
           //cell.sync();
           logger.info("itemboard: cell initialization complete, cellID = " + cell.getCellID());
         }

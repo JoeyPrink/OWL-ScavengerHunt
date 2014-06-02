@@ -29,7 +29,6 @@ import org.jdesktop.wonderland.client.login.LoginManager;
  * @author Pirmin Riedman
  *
  * adapted by
- *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class InventoryManager

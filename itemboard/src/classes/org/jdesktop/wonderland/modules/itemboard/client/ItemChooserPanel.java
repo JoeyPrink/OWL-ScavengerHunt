@@ -5,13 +5,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 
 /**
- * GUI for user to see list of items in his/her inventory.
- *
- * Code based on ItemPanel by
- *
- * @author Pirmin Riedmann
- *
- * adapted by
+ * GUI for user to see list of items in his/her inventory and choose one, in
+ * this case for displaying it on the itemboard.
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
@@ -34,6 +29,7 @@ public class ItemChooserPanel extends javax.swing.JPanel
     itemList.setModel(dlm);
 
     btOK.setText("OK");
+    btOK.setEnabled(false);
     btCancel.setText("Cancel");
   }
 
@@ -85,10 +81,18 @@ public class ItemChooserPanel extends javax.swing.JPanel
       public int getSize() { return strings.length; }
       public Object getElementAt(int i) { return strings[i]; }
     });
+    itemList.addListSelectionListener(new javax.swing.event.ListSelectionListener()
+    {
+      public void valueChanged(javax.swing.event.ListSelectionEvent evt)
+      {
+        itemListValueChanged(evt);
+      }
+    });
     jScrollPane1.setViewportView(itemList);
 
     btOK.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
     btOK.setText("jButton1");
+    btOK.setEnabled(false);
 
     btCancel.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
     btCancel.setText("jButton2");
@@ -119,6 +123,12 @@ public class ItemChooserPanel extends javax.swing.JPanel
         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
     );
   }// </editor-fold>//GEN-END:initComponents
+
+  private void itemListValueChanged(javax.swing.event.ListSelectionEvent evt)//GEN-FIRST:event_itemListValueChanged
+  {//GEN-HEADEREND:event_itemListValueChanged
+    btOK.setEnabled(itemList.getSelectedIndex() > -1);
+  }//GEN-LAST:event_itemListValueChanged
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btCancel;
   private javax.swing.JButton btOK;

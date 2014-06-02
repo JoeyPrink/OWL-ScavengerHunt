@@ -44,12 +44,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.svg.SVGDocument;
 
 /**
- *
- * A 2D SVG whiteboard application
+ * Code from the 2D SVG whiteboard application by
  *
  * @author paulby
  * @author deronj
  * @author nsimpson
+ *
+ * adapted by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @ExperimentalAPI
 public class ItemboardApp extends App2D implements ControlChangeListener

@@ -8,8 +8,9 @@ package org.jdesktop.wonderland.modules.item.client;
 import java.util.ArrayList;
 
 /**
+ * Represents one group of students who take part in the Scavenger Hunt.
  *
- * @author ASUS
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ScavengerHuntGroup
 {

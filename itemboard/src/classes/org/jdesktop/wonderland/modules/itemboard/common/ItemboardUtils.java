@@ -65,8 +65,13 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /**
+ * Util methods for the whiteboard module by
  *
  * @author jbarratt
+ *
+ * Class was reused and extended for a whiteboard module that can also display
+ * items (images + multiline text) called "itemboard" by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardUtils
 {

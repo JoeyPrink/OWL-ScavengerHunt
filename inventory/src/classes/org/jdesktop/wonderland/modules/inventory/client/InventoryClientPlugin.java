@@ -27,7 +27,6 @@ import org.jdesktop.wonderland.common.annotation.Plugin;
  * @author Pirmin Riedmann
  *
  * adapted by
- *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @Plugin
@@ -112,7 +111,8 @@ public class InventoryClientPlugin extends BaseClientPlugin
 
     JPanel inventoryPanel = new JPanel(new BorderLayout());
     inventoryPanel.add(itemPanel, BorderLayout.CENTER);
-    inventoryPanel.setBorder(new MatteBorder(5, 5, 5, 5, new Color(153, 51, 0)));
+    inventoryPanel.setBorder(new MatteBorder(5, 5, 5, 5, new Color(153, 153, 153)));
+    inventoryPanel.setFont(new java.awt.Font("Tahoma", 1, 14));
 
     hudComponent = mainHUD.createComponent(inventoryPanel);
     hudComponent.setName("Inventory");

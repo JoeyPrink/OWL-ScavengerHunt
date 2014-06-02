@@ -64,9 +64,14 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.svg.SVGDocument;
 
 /**
- * Wraps the SVG document
+ * Wraps the SVG document. Class was originally implemented as part of the
+ * whiteboard module by
  *
  * @author Bernard Horan
+ *
+ * Class was eventually extended to also display items (images and multiline
+ * text) and therefore also renamed by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardDocument implements SVGDocumentLoaderListener
 {

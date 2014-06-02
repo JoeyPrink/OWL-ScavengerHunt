@@ -6,6 +6,8 @@
 package org.jdesktop.wonderland.modules.item.common;
 
 /**
+ * Manages enum of different abilites users can have. At the moment: Adventurer,
+ * Scientist, Priest, and Historian
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */

@@ -27,6 +27,9 @@ import org.jdesktop.wonderland.modules.appbase.common.cell.App2DCellServerState;
  * The WFS server state class for WhiteboardCellMO.
  *
  * @author nsimpson
+ *
+ * adapted an reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @XmlRootElement(name = "itemboard-cell-svg")
 @ServerState

@@ -8,8 +8,9 @@ package org.jdesktop.wonderland.modules.item.client;
 import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 
 /**
+ * Represents one student who takes part in the Scavenger Hunt.
  *
- * @author ASUS
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 class ScavengerHuntStudent
 {

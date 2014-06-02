@@ -37,6 +37,9 @@ import org.w3c.dom.svg.SVGDocument;
  * XML string in a drag and drop operation.
  *
  * @author nsimpson
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardStateTransferable implements Transferable
 {

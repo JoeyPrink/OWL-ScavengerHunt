@@ -21,9 +21,13 @@ import java.awt.event.KeyListener;
 import org.jdesktop.wonderland.modules.itemboard.client.ItemboardToolManager.ItemboardTool;
 
 /**
- * Simple class that implements KeyListener
+ * Simple class that implements KeyListener, originally implemented for the
+ * whiteboard module by
  *
  * @author bhoran
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardKeyListener implements KeyListener
 {

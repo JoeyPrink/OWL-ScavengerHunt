@@ -26,9 +26,12 @@ import org.jdesktop.wonderland.common.cell.state.CellServerState;
 import org.jdesktop.wonderland.modules.itemboard.common.cell.ItemboardSVGCellServerState;
 
 /**
- * The cell factory for the whiteboard
+ * The cell factory for the whiteboard module by
  *
  * @author nsimpson
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes<lisa.tomes@student.tugraz.at>
  */
 @CellFactory
 public class ItemboardCellFactory implements CellFactorySPI

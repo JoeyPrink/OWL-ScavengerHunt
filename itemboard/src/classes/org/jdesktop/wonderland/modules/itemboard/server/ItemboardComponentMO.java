@@ -38,6 +38,9 @@ import org.jdesktop.wonderland.server.eventrecorder.RecorderManager;
  * be connected to the cell prior to construction.
  *
  * @author deronj
+ *
+ * adapted an reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @ExperimentalAPI
 public class ItemboardComponentMO extends CellComponentMO

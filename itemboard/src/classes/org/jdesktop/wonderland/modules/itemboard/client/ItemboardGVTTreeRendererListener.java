@@ -26,6 +26,9 @@ import org.apache.batik.swing.gvt.GVTTreeRendererListener;
  * whiteboardApp when the GVT rendering is complete.
  *
  * @author bh37721
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardGVTTreeRendererListener implements GVTTreeRendererListener
 {

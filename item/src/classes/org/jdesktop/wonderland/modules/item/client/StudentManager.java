@@ -24,18 +24,18 @@ import java.util.logging.Logger;
 import org.jdesktop.wonderland.client.cell.asset.AssetUtils;
 import org.jdesktop.wonderland.client.comms.WonderlandSession;
 import org.jdesktop.wonderland.client.login.LoginManager;
-import org.jdesktop.wonderland.client.login.ServerSessionManager;
-import org.jdesktop.wonderland.modules.contentrepo.client.ContentRepositoryRegistry;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentCollection;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentNode;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentRepositoryException;
-import org.jdesktop.wonderland.modules.contentrepo.common.ContentResource;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
 import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManager;
 import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManagerFactory;
 import org.jdesktop.wonderland.modules.presencemanager.common.PresenceInfo;
 
 /**
+ * Responsible for managing (loading, writing) Scavanger Hunt specific user data
+ * (ability, group). Attention: group is not working at the moment; all users
+ * get put into one group on loading and writing.
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
@@ -43,7 +43,6 @@ class StudentManager
 {
 
   public static final String iniFileName = "scavenger_hunt.ini";
-  public static final String iniFileDir = "scavenger_hunt";
   private final ArrayList<ScavengerHuntGroup> groups;
 
   public StudentManager()
@@ -77,7 +76,6 @@ class StudentManager
 
   public void loadStudents()
   {
-//    System.out.println("loadStudents");
     groups.clear();
 
     WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
@@ -114,7 +112,7 @@ class StudentManager
     List<ContentNode> children;
     try
     {
-      fileRoot = getFileRoot(iniFileDir, userName);
+      fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_INI, userName);
       children = fileRoot.getChildren();
     }
     catch (ContentRepositoryException ex)
@@ -145,7 +143,7 @@ class StudentManager
 
       try
       {
-        fileRoot = getFileRoot(iniFileDir, userName);
+        fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_INI, userName);
         children = fileRoot.getChildren();
       }
       catch (ContentRepositoryException ex)
@@ -264,7 +262,7 @@ class StudentManager
   {
     File newFile = new File(iniFileName);
     writeTemplate(newFile, role, group);
-    uploadFileToServer(newFile, iniFileDir, userName);
+    ItemUtils.uploadFileToServer(newFile, ItemUtils.SUBDIRNAME_INI, userName);
   }
 
   private static void writeTemplate(File file, int role, int group) throws IOException
@@ -279,76 +277,6 @@ class StudentManager
     buffy.newLine();
 
     buffy.close();
-  }
-
-  /**
-   * Fetches the user's root directory for all xml files using the current
-   * primary server.
-   *
-   * Code based on sample cell and learning poster by
-   *
-   * @author Jordan Slott <jslott@dev.java.net>
-   * @author Ronny Standtke <ronny.standtke@fhnw.ch>
-   * @author Johanna Pirker <jpirker@iicm.edu>
-   *
-   * adapted by
-   *
-   * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
-   * @param subDirName
-   * @param userName
-   *
-   * @return the user's root directory using the current primary server
-   * @throws
-   * org.jdesktop.wonderland.modules.contentrepo.common.ContentRepositoryException
-   */
-  private static ContentCollection getFileRoot(String subDirName, String userName) throws ContentRepositoryException
-  {
-    ContentRepositoryRegistry r = ContentRepositoryRegistry.getInstance();
-    ServerSessionManager session = LoginManager.getPrimary();
-
-    // Try to find the desired sub-directory or create it if it doesn't exist
-    ContentCollection userRoot = r.getRepository(session).getUserRoot(userName);
-    ContentNode node = (ContentNode) userRoot.getChild(subDirName);
-    if (node == null)
-    {
-      node = (ContentNode) userRoot.createChild(subDirName, ContentNode.Type.COLLECTION);
-    }
-    else
-    {
-      if (!(node instanceof ContentCollection))
-      {
-        node.getParent().removeChild(subDirName);
-        node = (ContentNode) userRoot.createChild(subDirName, ContentNode.Type.COLLECTION);
-      }
-    }
-
-    return (ContentCollection) node;
-  }
-
-  private static URL uploadFileToServer(File file, String subDirName, String userName) throws ContentRepositoryException, IOException
-  {
-    String fileName = file.getName();
-
-    ContentCollection fileRoot = getFileRoot(subDirName, userName);
-
-    ContentNode resource = fileRoot.getChild(fileName);
-    if (resource == null)
-    {
-      resource = fileRoot.createChild(fileName, ContentNode.Type.RESOURCE);
-    }
-    else
-    {
-      if (!(resource instanceof ContentResource))
-      {
-        resource.getParent().removeChild(fileName);
-        resource = fileRoot.createChild(fileName, ContentNode.Type.RESOURCE);
-      }
-    }
-
-    // Here the upload-magic happens
-    ((ContentResource) resource).put(file);
-
-    return ((ContentResource) resource).getURL();
   }
 
 }

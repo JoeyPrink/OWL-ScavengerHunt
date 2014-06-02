@@ -14,8 +14,13 @@ import javax.swing.JRadioButton;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
 
 /**
+ * JPanel with a List and RadioButtons to assign users one of four abilities for
+ * the scavenger hunt. JPanel is thought to be used within a HUD component.
  *
- * @author ASUS
+ * Only admins should be able to call up and use this panel! (see StudentManager
+ * component)
+ *
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class StudentManagerPanel extends javax.swing.JPanel
 {

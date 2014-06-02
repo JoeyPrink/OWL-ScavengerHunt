@@ -32,7 +32,6 @@ import org.jdesktop.wonderland.common.annotation.Plugin;
  * @author Jordan Slott <jslott@dev.java.net>
  *
  * adapted by
- *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 @Plugin
@@ -164,7 +163,8 @@ public class ItemComponentClientPlugin extends BaseClientPlugin
           //infoPanel.setPreferredSize(new Dimension(canvas.getWidth() / 2,
           //  canvas.getHeight() / 4));
           infoPanel.add(scroll, BorderLayout.CENTER);
-          infoPanel.setBorder(new MatteBorder(5, 5, 5, 5, new Color(153, 51, 0)));
+          infoPanel.setBorder(new MatteBorder(5, 5, 5, 5, new Color(153, 153, 153)));
+          infoPanel.setFont(new java.awt.Font("Tahoma", 1, 14));
 
           hudComponent = hud.createComponent(infoPanel);
           hudComponent.setName("Object info");

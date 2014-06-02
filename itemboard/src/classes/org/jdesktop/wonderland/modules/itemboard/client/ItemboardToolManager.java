@@ -20,10 +20,13 @@ import java.awt.Color;
 import org.jdesktop.wonderland.client.hud.HUDObject.DisplayMode;
 
 /**
- * Class to manage the selected tool
+ * Class to manage the selected tool for the whiteboard module
  *
  * @author bhoran
  * @author nsimpson
+ *
+ * adapted and reused for the itemboard module by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class ItemboardToolManager implements ItemboardCellMenuListener
 {

@@ -20,9 +20,15 @@ package org.jdesktop.wonderland.modules.item.common;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 
 /**
- * Server state for admin tools component
+ * Server state for student manager component. Does nothing but is needed so
+ * that admin user avatars can be provided with the StudentManager capability.
+ *
+ * Idea based on admin tools by
  *
  * @author Jonathan Kaplan <jonathankap@gmail.com>
+ *
+ * adapted by
+ * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
 public class StudentManagerComponentClientState extends CellComponentClientState
 {

@@ -25,6 +25,8 @@ import org.jdesktop.wonderland.client.login.ServerSessionManager;
 import org.jdesktop.wonderland.common.annotation.Plugin;
 
 /**
+ * Adds a menu item to the Tools menu which shows the StudentManagerPanel in a
+ * HUD when clicked (only allowed for admin users).
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */

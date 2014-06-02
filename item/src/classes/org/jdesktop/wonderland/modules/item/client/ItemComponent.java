@@ -53,6 +53,8 @@ import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 import org.jdesktop.wonderland.modules.item.common.ItemComponentClientState;
 
 /**
+ * Adds a context menu item to the object with which a user (with the
+ * appropriate abilities) can pick up (download) the item information.
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
@@ -104,23 +106,19 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
 
     if (status == CellStatus.ACTIVE && increasing)
     {
-//      System.out.println("add context menu factory and item effect");
       contextMenu.addContextMenuFactory(menuFactory);
       displayItemEffect(true);
     }
     else if (status == CellStatus.INACTIVE && !increasing)
     {
-//      System.out.println("REMOVE context menu factory and item effect");
       contextMenu.removeContextMenuFactory(menuFactory);
       displayItemEffect(false);
 
-//      System.out.println("Just removed set to TRUE");
       just_removed = true;
     }
 
     if ((status == CellStatus.RENDERING || status == CellStatus.VISIBLE) && increasing && !just_removed)
     {
-//      System.out.println("displayItemEffect");
       displayItemEffect(true);
     }
 
@@ -135,7 +133,6 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     imgPath = ((ItemComponentClientState) clientState).getImgPath();
     abilities = ((ItemComponentClientState) clientState).getAbilities();
 
-//    System.out.println("displayItemEffect called by setClientState");
     displayItemEffect(true);
   }
 
@@ -184,8 +181,23 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
 
         if (contains)
         {
-//          System.out.println("You are allowed to pick up this item.");
-          getItemFromServer();
+          boolean success = getItemFromServer();
+
+          //TODO: maybe remove this or replace JOptionPane with HUD?
+          if (success)
+          {
+            JOptionPane.showMessageDialog(null, "Item information was picked "
+              + "up. You are now able to see it in your Inventory.",
+              "Success",
+              JOptionPane.INFORMATION_MESSAGE);
+          }
+          else
+          {
+            JOptionPane.showMessageDialog(null, "Item information could not be "
+              + "picked up.",
+              "Failure",
+              JOptionPane.WARNING_MESSAGE);
+          }
         }
         else
         {
@@ -198,8 +210,10 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     }
   }
 
-  private void getItemFromServer()
+  private boolean getItemFromServer()
   {
+    boolean success = false;
+
     try
     {
       WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
@@ -213,6 +227,7 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
           // get image but save it with same name as description
           // to mark these to belong together
           get(imgPath, userName + "/items", fileName);
+          success = true;
         }
       }
     }
@@ -221,6 +236,8 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
       Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE,
         "Could not open file.");
     }
+
+    return success;
   }
 
   private String get(String filePath, String localFolder, String fileName) throws FileNotFoundException, IOException
@@ -231,7 +248,7 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     // If given file name is null, take own
     if (fileName == null)
     {
-      fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+      fileName = ItemUtils.getFileNameFromPath(filePath);
 
       // Cut off extension for fileNameToReturn
       int index = fileName.lastIndexOf(".");
@@ -239,7 +256,7 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     }
     else // else take given and add own extension
     {
-      String ownFileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+      String ownFileName = ItemUtils.getFileNameFromPath(filePath);
       String ownExtension = ownFileName.substring(ownFileName.lastIndexOf("."));
       fileName += ownExtension;
     }
@@ -324,6 +341,17 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     return text;
   }
 
+  /**
+   * The following methods for surrounding the object with glitter so that
+   * everyone recognizes it as an item which can be picked up as well as the art
+   * (kmz files) that are used for that reason are from the cell component for
+   * admin tools
+   *
+   * @author Jonathan Kaplan <jonathankap@gmail.com>
+   *
+   * adapted by
+   * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
+   */
   private void displayItemEffect(boolean display)
   {
 //    // I have no idea what's that for...
@@ -363,12 +391,10 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
       // create a node
       LoaderManager lm = LoaderManager.getLoaderManager();
       DeployedModel dm = lm.getLoaderFromDeployment(modelURL);
-//      System.out.println("ITEM: Successfully loaded model: " + dm);
       return dm.getModelLoader().loadDeployedModel(dm, null);
     }
     catch (IOException ex)
     {
-//      System.out.println("ITEM: Warning: URL error loading effect: " + ex.toString());
       return null;
     }
   }
