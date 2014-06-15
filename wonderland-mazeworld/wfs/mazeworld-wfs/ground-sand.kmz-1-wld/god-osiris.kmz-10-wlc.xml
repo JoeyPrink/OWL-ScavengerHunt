@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>god-osiris.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-26.7</x>
+            <y>2.1</y>
+            <z>8.0</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>1.7750002145767212</x>
+            <y>5.046887397766113</y>
+            <z>1.9499999284744263</z>
+        </bounds>
+        <scale>
+            <x>0.4</x>
+            <y>0.4</y>
+            <z>0.4</z>
+        </scale>
+        <rotation>
+            <x>1.0</x>
+            <y>0.0</y>
+            <z>0.0</z>
+            <angle>0.0</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/osiris.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/osiris.png</img-path>
+        <abilities>ADVENTURER</abilities>
+        <abilities>PRIEST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/god-osiris.kmz/god-osiris.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<deployed-model>
+    <version>1</version>
+    <modelURL>wla://wonderland-mazeworld/person-normad.kmz/models/untitled.dae.gz</modelURL>
+    <loaderDataURL>wla://wonderland-mazeworld/person-normad.kmz/person-normad.kmz.ldr</loaderDataURL>
+    <modelBGScale>
+        <x>0.0254</x>
+        <y>0.0254</y>
+        <z>0.0254</z>
+    </modelBGScale>
+    <modelBGTranslation>
+        <x>-2.623568</x>
+        <y>-0.92779756</y>
+        <z>0.78417695</z>
+    </modelBGTranslation>
+    <modelBGRotation>
+        <x>-0.99999994</x>
+        <y>0.0</y>
+        <z>0.0</z>
+        <angle>1.5707964</angle>
+    </modelBGRotation>
+    <modelBounds>
+        <boundsType>BOX</boundsType>
+        <center_x>2.623568</center_x>
+        <center_y>0.92779756</center_y>
+        <center_z>-0.78417695</center_z>
+        <dimension_x>0.36658096</dimension_x>
+        <dimension_y>0.93441534</dimension_y>
+        <dimension_z>0.5290472</dimension_z>
+    </modelBounds>
+    <modelLoaderClassname>org.jdesktop.wonderland.modules.kmzloader.client.KmzLoader</modelLoaderClassname>
+</deployed-model>

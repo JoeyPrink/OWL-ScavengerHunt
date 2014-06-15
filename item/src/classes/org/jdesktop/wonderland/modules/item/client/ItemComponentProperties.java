@@ -45,6 +45,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   private String originalXmlPath;
   private String originalImagePath;
   private Ability[] originalAbilities;
+  private boolean originalOnce;
 
   private final JCheckBox[] boxes;
 
@@ -119,9 +120,10 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       originalImagePath = itemState.getImgPath();
       imgPath.setText(originalImagePath);
 
-      originalAbilities = itemState.getAbilities();
-      //printAbilities(originalAbilities, "This are the original abilities:");
+      originalOnce = itemState.getOnce();
+      cbOnce.setSelected(originalOnce);
 
+      originalAbilities = itemState.getAbilities();
       updateLists();
       setCheckBoxes(originalAbilities);
     }
@@ -218,6 +220,8 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     imgPath.setText(originalImagePath);
     selectCurrentElement(listImages, originalImagePath);
 
+    cbOnce.setSelected(originalOnce);
+
     //printAbilities(originalAbilities, "This are the original abilities:");
     setCheckBoxes(originalAbilities);
   }
@@ -232,6 +236,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     // Update values in Server State
     ((ItemComponentServerState) compState).setXmlPath(txtPath.getText());
     ((ItemComponentServerState) compState).setImgPath(imgPath.getText());
+    ((ItemComponentServerState) compState).setOnce(cbOnce.isSelected());
 
     Ability[] newAbilites = getSelectedAbilities();
     //printAbilities(newAbilites, "This are the currently selected abilities:");
@@ -297,6 +302,8 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     taItem = new javax.swing.JTextArea();
     btApply = new javax.swing.JButton();
     btReset = new javax.swing.JButton();
+    jPanel3 = new javax.swing.JPanel();
+    cbOnce = new javax.swing.JCheckBox();
 
     jLabel1.setText("Path to item description file:");
 
@@ -373,7 +380,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
           .addComponent(cbRole1)
           .addComponent(cbRole2)
           .addComponent(cbRole3))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap(24, Short.MAX_VALUE))
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -400,6 +407,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     taItem.setLineWrap(true);
     taItem.setRows(5);
     taItem.setWrapStyleWord(true);
+    taItem.setMinimumSize(new java.awt.Dimension(10, 2));
     taItem.addInputMethodListener(new java.awt.event.InputMethodListener()
     {
       public void caretPositionChanged(java.awt.event.InputMethodEvent evt)
@@ -437,11 +445,12 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPaneTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 206, Short.MAX_VALUE)
+          .addComponent(jScrollPaneTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
           .addGroup(jPanel2Layout.createSequentialGroup()
             .addComponent(btApply)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btReset)))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(btReset)
+            .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
@@ -456,6 +465,38 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
         .addContainerGap())
     );
 
+    jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+    cbOnce.setText("Pick up only once");
+    cbOnce.addItemListener(new java.awt.event.ItemListener()
+    {
+      public void itemStateChanged(java.awt.event.ItemEvent evt)
+      {
+        cbOnceItemStateChanged(evt);
+      }
+    });
+
+    javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+    jPanel3.setLayout(jPanel3Layout);
+    jPanel3Layout.setHorizontalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 0, Short.MAX_VALUE)
+      .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
+          .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(cbOnce)
+          .addGap(30, 30, 30)))
+    );
+    jPanel3Layout.setVerticalGroup(
+      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 37, Short.MAX_VALUE)
+      .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        .addGroup(jPanel3Layout.createSequentialGroup()
+          .addContainerGap()
+          .addComponent(cbOnce, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+    );
+
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
     this.setLayout(layout);
     layout.setHorizontalGroup(
@@ -467,42 +508,50 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
           .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(buttonBrowseImg, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(imgPath, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 210, Short.MAX_VALUE)
+          .addComponent(imgPath, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
+          .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
           .addComponent(txtPath, javax.swing.GroupLayout.Alignment.LEADING)
           .addComponent(jScrollPaneImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addGroup(layout.createSequentialGroup()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+              .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+            .addGap(0, 0, Short.MAX_VALUE)))
+        .addContainerGap())
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(layout.createSequentialGroup()
             .addContainerGap()
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(buttonBrowse)
-            .addGap(0, 0, Short.MAX_VALUE)))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jLabel2)
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
           .addGroup(layout.createSequentialGroup()
+            .addComponent(jLabel2)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(imgPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPaneImages, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(buttonBrowseImg)))
+            .addComponent(jScrollPaneImages, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addGroup(layout.createSequentialGroup()
+            .addGap(8, 8, 8)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(buttonBrowseImg))
         .addContainerGap())
     );
   }// </editor-fold>//GEN-END:initComponents
@@ -785,6 +834,11 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
 //    btApply.setEnabled(true);
   }//GEN-LAST:event_taItemInputMethodTextChanged
 
+  private void cbOnceItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cbOnceItemStateChanged
+  {//GEN-HEADEREND:event_cbOnceItemStateChanged
+    checkDirty();
+  }//GEN-LAST:event_cbOnceItemStateChanged
+
   private void printAbilities(Ability[] abilities, String info)
   {
     if (abilities == null)
@@ -865,7 +919,8 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       boolean same = compareAbilities(currentAbilites, originalAbilities);
 
       if (!same || !txtPath.getText().equals(originalXmlPath)
-        || !imgPath.getText().equals(originalImagePath))
+        || !imgPath.getText().equals(originalImagePath)
+        || cbOnce.isSelected() != originalOnce)
       {
         editor.setPanelDirty(ItemComponentProperties.class, true);
       }
@@ -910,6 +965,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   private javax.swing.JButton btReset;
   private javax.swing.JButton buttonBrowse;
   private javax.swing.JButton buttonBrowseImg;
+  private javax.swing.JCheckBox cbOnce;
   private javax.swing.JCheckBox cbRole1;
   private javax.swing.JCheckBox cbRole2;
   private javax.swing.JCheckBox cbRole3;
@@ -921,6 +977,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   private javax.swing.JLabel jLabel3;
   private javax.swing.JPanel jPanel1;
   private javax.swing.JPanel jPanel2;
+  private javax.swing.JPanel jPanel3;
   private javax.swing.JScrollPane jScrollPaneFiles;
   private javax.swing.JScrollPane jScrollPaneImages;
   private javax.swing.JScrollPane jScrollPaneTextArea;

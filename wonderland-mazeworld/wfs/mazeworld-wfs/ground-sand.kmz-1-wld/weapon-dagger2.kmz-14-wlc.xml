@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>weapon-dagger2.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-32.75</x>
+            <y>13.0</y>
+            <z>13.85</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>2.105257511138916</x>
+            <y>0.5204310417175293</y>
+            <z>0.21631288528442383</z>
+        </bounds>
+        <scale>
+            <x>0.20000002</x>
+            <y>0.20000002</y>
+            <z>0.20000002</z>
+        </scale>
+        <rotation>
+            <x>-0.13761328</x>
+            <y>-0.8402495</y>
+            <z>-0.5244457</z>
+            <angle>2.9039137</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/dagger.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/dagger.jpg</img-path>
+        <abilities>ADVENTURER</abilities>
+        <abilities>PRIEST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/weapon-dagger2.kmz/weapon-dagger2.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

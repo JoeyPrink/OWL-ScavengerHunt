@@ -39,7 +39,7 @@ import org.jdesktop.wonderland.modules.presencemanager.common.PresenceInfo;
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
-class StudentManager
+public class StudentManager
 {
 
   public static final String iniFileName = "scavenger_hunt.ini";

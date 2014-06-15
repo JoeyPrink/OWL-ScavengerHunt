@@ -13,6 +13,7 @@ import javax.swing.JOptionPane;
 import org.jdesktop.wonderland.client.BaseClientPlugin;
 import org.jdesktop.wonderland.client.cell.Cell;
 import org.jdesktop.wonderland.client.cell.view.ViewCell;
+import org.jdesktop.wonderland.client.comms.WonderlandSession;
 import org.jdesktop.wonderland.client.hud.CompassLayout;
 import org.jdesktop.wonderland.client.hud.HUD;
 import org.jdesktop.wonderland.client.hud.HUDComponent;
@@ -21,8 +22,10 @@ import org.jdesktop.wonderland.client.hud.HUDEventListener;
 import org.jdesktop.wonderland.client.hud.HUDManagerFactory;
 import org.jdesktop.wonderland.client.jme.JmeClientMain;
 import org.jdesktop.wonderland.client.jme.ViewManager;
+import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.client.login.ServerSessionManager;
 import org.jdesktop.wonderland.common.annotation.Plugin;
+import org.jdesktop.wonderland.modules.item.common.Abilities;
 
 /**
  * Adds a menu item to the Tools menu which shows the StudentManagerPanel in a
@@ -55,7 +58,7 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
   @Override
   public void initialize(ServerSessionManager loginInfo)
   {
-    menuItem = new JCheckBoxMenuItem("Ability Panel");
+    menuItem = new JCheckBoxMenuItem("Student Manager");
     menuItem.addActionListener(new ActionListener()
     {
       @Override
@@ -91,7 +94,31 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
           }
           else
           {
-            JOptionPane.showMessageDialog(null, "Your are not admin.", "Error", JOptionPane.ERROR_MESSAGE);
+            WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+            String userName = session.getUserID().getUsername();
+            ScavengerHuntStudent student = StudentManager.loadStudentFromFile(userName);
+            if (student != null)
+            {
+              Abilities.Ability userAbility = student.getAbility();
+
+              if (userAbility != null)
+              {
+                String userAbilityString = Abilities.getStringFromAbility(userAbility);
+                JOptionPane.showMessageDialog(null, "Your ability is: "
+                  + userAbilityString, "Info", JOptionPane.INFORMATION_MESSAGE);
+              }
+              else
+              {
+                JOptionPane.showMessageDialog(null, "Sorry, an error occured. "
+                  + "It seems that you have no abilities.", "Error", JOptionPane.ERROR_MESSAGE);
+              }
+            }
+            else
+            {
+              JOptionPane.showMessageDialog(null, "Sorry, an error occured. "
+                + "It seems that you are no student.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+
             menuItem.setSelected(false);
           }
         }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>god-horus.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-32.85</x>
+            <y>14.05</y>
+            <z>6.3</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.4367126226425171</x>
+            <y>1.7768213748931885</y>
+            <z>0.5999999642372131</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>1.0</x>
+            <y>0.0</y>
+            <z>0.0</z>
+            <angle>0.0</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/horus.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/horus.png</img-path>
+        <abilities>SCIENTIST</abilities>
+        <abilities>PRIEST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users/lisa/lisa/art/god-horus.kmz/god-horus.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<questionStore>
+
+  <questionTree>
+  
+    <questionNode nodeNr="1">
+      <question>
+        <questiontext>Hello!</questiontext>
+        <answertext>G’day mate! How are you?</answertext>
+        <nextsos>2</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="2">
+      <question>
+        <questiontext>I am fine, how are you?</questiontext>
+        <answertext>I’m excellent! The weather is nice, the birds are singing, life is perfect. How can I help you?</answertext>
+        <nextsos>4</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>I am actually quite busy and don't have time for smalltalk.</questiontext>
+        <answertext>That's ok. Have a good day.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Not so good.</questiontext>
+        <answertext>Oh, why that?</answertext>
+        <nextsos>3</nextsos>  
+      </question>
+    </questionNode>
+    
+    <questionNode nodeNr="3">
+      <question>
+        <questiontext>Don't want to talk about it.</questiontext>
+        <answertext>That's ok. Have a good day.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>I have to complete this difficult task...</questiontext>
+        <answertext>Which task? Can I help you somehow?</answertext>
+        <nextsos>4</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="4">
+      <question>
+        <questiontext>I don't need any help, thanks. I will find my way around.</questiontext>
+        <answertext>Ok. You're the man.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>I’m the new archaeologist. My task is to explore the pyramid and see if I can find something interesting.</questiontext>
+        <answertext>This sounds like a very adventurous task. Be careful that you don't get lost.</answertext>
+        <nextsos>5</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="5">
+      <question>
+        <questiontext>Thank you.</questiontext>
+        <answertext>It was nice to meet you.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Now that was helpful...</questiontext>
+        <answertext>Hey, no need to get rude.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Thank you. Can you give me some more advice?</questiontext>
+        <answertext>The pyramid has more than one level. Try to find a way up if you want to discover all the secrets.</answertext>
+        <nextsos>6</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="6">
+      <question>
+        <questiontext>Thank you.</questiontext>
+        <answertext>It was nice to meet you.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Which secrets do I have to uncover?</questiontext>
+        <answertext>There are statues hidden in the pyramid. Each depicts an ancient god of Egypt. Listen closely, and they will tell you their stories.</answertext>
+        <nextsos>65</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Thank you. Can you give me some more advice? </questiontext>
+        <answertext>The pyramid also has some secret passages. Sometimes when you turn while your avatar is standing beneath a wall you can get a glimpse at them. Place yourself in front of a wall and run (by pressing shift and the up key) to get into these secret passageways.</answertext>
+        <nextsos>7</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="65">
+      <question>
+        <questiontext>Thank you.</questiontext>
+        <answertext>It was nice to meet you.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>Thank you. Can you give me some more advice? </questiontext>
+        <answertext>The pyramid also has some secret passages. Sometimes when you turn while your avatar is standing beneath a wall you can get a glimpse at them. Place yourself in front of a wall and run (by pressing shift and the up key) to get into these secret passageways.</answertext>
+        <nextsos>7</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="7">
+      <question>
+        <questiontext>Ok, I’ll do that. See you later.</questiontext>
+        <answertext>See you.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>That sounds like a bug in the game.</questiontext>
+        <answertext>Is it a bug or a feature?</answertext>
+        <nextsos>75</nextsos>  
+      </question>
+
+      <question>
+        <questiontext>Thank you. Can you give me some more advice? </questiontext>
+        <answertext>I fear the rest is up to you. Try to find all the statues and discover the secrets of the gods they depict. Ah, and try switching between the third person and the first person view when navigating inside a small space becomes confusing.</answertext>
+        <nextsos>8</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="75">
+      <question>
+        <questiontext>Haha! Bug.. Feature.. I get it! See you later.</questiontext>
+        <answertext>See you.</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+
+      <question>
+        <questiontext>Very funny! Can you give me some more advice?</questiontext>
+        <answertext>I fear the rest is up to you. Try to find all the statues and discover the secrets of the gods they depict. Ah, and try switching between the third person and the first person view when navigating inside a small space becomes confusing.</answertext>
+        <nextsos>8</nextsos>  
+      </question>
+    </questionNode>
+
+    <questionNode nodeNr="8">
+      <question>
+        <questiontext>Thank you for all your help!</questiontext>
+        <answertext>You're welcome. Good luck on your adventure!</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+      
+      <question>
+        <questiontext>You should really fix some issues in this game!</questiontext>
+        <answertext>Maybe we'll do that in a future version. Or rather the developers will. After all, I'm still a NPC...</answertext>
+        <nextsos>0</nextsos>  
+      </question>
+    </questionNode>
+    
+  </questionTree>
+  
+  <name>Ancient person's chat</name>
+  
+</questionStore>

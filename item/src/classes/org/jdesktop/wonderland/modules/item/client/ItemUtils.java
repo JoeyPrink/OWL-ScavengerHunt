@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.JAXBContext;
@@ -19,6 +21,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import org.jdesktop.wonderland.client.cell.asset.AssetUtils;
+import org.jdesktop.wonderland.client.comms.WonderlandSession;
 import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.client.login.ServerSessionManager;
 import org.jdesktop.wonderland.modules.contentrepo.client.ContentRepositoryRegistry;
@@ -26,6 +29,10 @@ import org.jdesktop.wonderland.modules.contentrepo.common.ContentCollection;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentNode;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentRepositoryException;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentResource;
+import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
+import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManager;
+import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManagerFactory;
+import org.jdesktop.wonderland.modules.presencemanager.common.PresenceInfo;
 
 /**
  *
@@ -196,5 +203,27 @@ public class ItemUtils
     ((ContentResource) resource).put(file);
 
     return ((ContentResource) resource).getURL();
+  }
+
+  public static ArrayList<ScavengerHuntStudent> getStudentsWithAbility(List<Ability> abilities)
+  {
+    ArrayList<ScavengerHuntStudent> students = new ArrayList<ScavengerHuntStudent>();
+
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    PresenceManager pm = PresenceManagerFactory.getPresenceManager(session);
+    PresenceInfo[] infos = pm.getAllUsers();
+
+    for (PresenceInfo info : infos)
+    {
+      String userName = info.getUserID().getUsername();
+
+      ScavengerHuntStudent student = StudentManager.loadStudentFromFile(userName);
+      if (student.getAbility() != null && abilities.contains(student.getAbility()))
+      {
+        students.add(student);
+      }
+    }
+
+    return students;
   }
 }

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>vase-alabaster.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>14.4</x>
+            <y>0.4</y>
+            <z>23.5</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.053512297570705414</x>
+            <y>0.12071400135755539</y>
+            <z>0.08548139035701752</z>
+        </bounds>
+        <scale>
+            <x>2.5</x>
+            <y>2.5</y>
+            <z>2.5</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>1.0</y>
+            <z>0.0</z>
+            <angle>2.8797934</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/alabaster_vase.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/alabaster_vase.png</img-path>
+        <abilities>ADVENTURER</abilities>
+        <abilities>SCIENTIST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/vase-alabaster.kmz/vase-alabaster.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

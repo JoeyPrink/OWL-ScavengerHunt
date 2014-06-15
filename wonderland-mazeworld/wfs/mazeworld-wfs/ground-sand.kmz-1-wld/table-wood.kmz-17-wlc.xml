@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>table-wood.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>15.0</x>
+            <y>0.5238962</y>
+            <z>23.0</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.26822352409362793</x>
+            <y>0.43688535690307617</y>
+            <z>0.2682228088378906</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-1.0</y>
+            <z>0.0</z>
+            <angle>2.3561947</angle>
+        </rotation>
+    </position-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/table-wood.kmz/table-wood.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<wonderland-module>
+    <name>mazeworld</name>
+    <version>
+        <major>0</major>
+        <minor>5</minor>
+        <mini>0</mini>
+    </version>
+    <description>World for exploratory social learning. Example Egypt setting with maze pyramid.</description>
+</wonderland-module>

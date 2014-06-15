@@ -22,8 +22,16 @@ public class ItemComponentServerState extends CellComponentServerState
   @XmlElement(name = "img-path")
   private String imgPath = "Enter path to item image file";
 
+  @XmlElement(name = "once")
+  private boolean once = false;
+
   @XmlElement(name = "abilities")
   private Ability[] abilities = new Ability[]
+  {
+  };
+
+  @XmlElement(name = "owners")
+  private String[] owners = new String[]
   {
   };
 
@@ -54,6 +62,17 @@ public class ItemComponentServerState extends CellComponentServerState
   }
 
   @XmlTransient
+  public boolean getOnce()
+  {
+    return once;
+  }
+
+  public void setOnce(boolean once)
+  {
+    this.once = once;
+  }
+
+  @XmlTransient
   public Ability[] getAbilities()
   {
     return abilities;
@@ -62,6 +81,17 @@ public class ItemComponentServerState extends CellComponentServerState
   public void setAbilities(Ability[] abilities)
   {
     this.abilities = abilities;
+  }
+
+  @XmlTransient
+  public String[] getOwners()
+  {
+    return owners;
+  }
+
+  public void setOwners(String[] owners)
+  {
+    this.owners = owners;
   }
 
   @Override

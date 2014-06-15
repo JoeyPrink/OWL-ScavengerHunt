@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>gods-anubis.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-54.5</x>
+            <y>1.72</y>
+            <z>-9.7</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.47345346212387085</x>
+            <y>1.722159504890442</y>
+            <z>0.5999999642372131</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>0.99999994</y>
+            <z>0.0</z>
+            <angle>1.5707963</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/anubis.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/anubis.png</img-path>
+        <abilities>ADVENTURER</abilities>
+        <abilities>SCIENTIST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users/lisa/lisa/art/gods-anubis.kmz/gods-anubis.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

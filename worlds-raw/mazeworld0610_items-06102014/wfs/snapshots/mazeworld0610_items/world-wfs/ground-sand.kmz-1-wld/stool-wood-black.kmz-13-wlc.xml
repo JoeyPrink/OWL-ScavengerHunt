@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>stool-wood-black.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-32.75</x>
+            <y>12.64</y>
+            <z>13.9</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.25999999046325684</x>
+            <y>0.18450000882148743</y>
+            <z>0.20999997854232788</z>
+        </bounds>
+        <scale>
+            <x>2.0</x>
+            <y>2.0</y>
+            <z>2.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-1.0</y>
+            <z>0.0</z>
+            <angle>3.1415927</angle>
+        </rotation>
+    </position-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users/lisa/lisa/art/stool-wood-black.kmz/stool-wood-black.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

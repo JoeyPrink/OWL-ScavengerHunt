@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>god-seth2.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-26.5</x>
+            <y>7.79</y>
+            <z>21.4</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.4741051197052002</x>
+            <y>1.603458285331726</y>
+            <z>0.5124170780181885</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-0.99999994</y>
+            <z>0.0</z>
+            <angle>1.5707963</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/seth.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/seth.png</img-path>
+        <abilities>ADVENTURER</abilities>
+        <abilities>SCIENTIST</abilities>
+        <abilities>PRIEST</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users/lisa/lisa/art/god-seth2.kmz/god-seth2.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

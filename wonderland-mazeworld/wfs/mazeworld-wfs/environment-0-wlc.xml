@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<environment-cell>
+    <name>environment</name>
+    <metadata/>
+    <position-component>
+        <translation>
+<x>0</x>
+            <y>0.0</y>
+<z>0</z>
+        </translation>
+        <bounds>
+            <type>SPHERE</type>
+            <x>0.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>1.0</x>
+            <y>0.0</y>
+            <z>0.0</z>
+            <angle>0.0</angle>
+        </rotation>
+    </position-component>
+    <shared-state-component>
+        <maps>
+            <data>
+                <key>active</key>
+                <shared-string>
+                    <value>default</value>
+                </shared-string>
+            </data>
+            <name>state</name>
+        </maps>
+        <maps>
+            <data>
+                <key>default</key>
+                <shared-skybox>
+                    <id>default</id>
+                    <description>Default Skybox</description>
+                    <north>wla://defaultenvironment/skybox1/1.jpg</north>
+                    <south>wla://defaultenvironment/skybox1/3.jpg</south>
+                    <east>wla://defaultenvironment/skybox1/2.jpg</east>
+                    <west>wla://defaultenvironment/skybox1/4.jpg</west>
+                    <up>wla://defaultenvironment/skybox1/6.jpg</up>
+                    <down>wla://defaultenvironment/skybox1/5.jpg</down>
+                </shared-skybox>
+            </data>
+            <name>skyboxes</name>
+        </maps>
+    </shared-state-component>
+</environment-cell>

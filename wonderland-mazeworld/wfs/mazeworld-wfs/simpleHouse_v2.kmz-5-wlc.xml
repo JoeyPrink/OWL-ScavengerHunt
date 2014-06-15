@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>simpleHouse_v2.kmz</name>
+    <metadata/>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-office-world/simpleHouse_v2.kmz/simpleHouse_v2.kmz.dep</deployedModelURL>
+        <PickingEnabled>false</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+    <position-component>
+        <translation>
+            <x>24.104856</x>
+            <y>6.0429997</y>
+            <z>46.295284</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>10.37315559387207</x>
+            <y>4.617671489715576</y>
+            <z>7.990891456604004</z>
+        </bounds>
+        <scale>
+            <x>1.3</x>
+            <y>1.3</y>
+            <z>1.3</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>0.99999994</y>
+            <z>0.0</z>
+            <angle>1.5707963</angle>
+        </rotation>
+    </position-component>
+</model-cell>

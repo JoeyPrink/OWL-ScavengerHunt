@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>god-isis.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-52.8</x>
+            <y>1.85</y>
+            <z>18.62</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.375</x>
+            <y>1.8481330871582031</y>
+            <z>0.4278247654438019</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>1.0</y>
+            <z>0.0</z>
+            <angle>3.1415927</angle>
+        </rotation>
+    </position-component>
+    <item-component>
+        <xml-path>wlcontent://users/lisa/xml/isis.xml</xml-path>
+        <img-path>wlcontent://users/lisa/images/isis.png</img-path>
+        <abilities>SCIENTIST</abilities>
+        <abilities>PRIEST</abilities>
+        <abilities>HISTORIAN</abilities>
+    </item-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users/lisa/lisa/lisa/art/god-isis.kmz/god-isis.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

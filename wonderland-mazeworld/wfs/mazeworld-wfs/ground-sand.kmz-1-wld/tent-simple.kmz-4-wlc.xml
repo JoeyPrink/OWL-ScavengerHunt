@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>tent-simple.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>15.825</x>
+            <y>5.73</y>
+            <z>22.5</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>2.550250291824341</x>
+            <y>2.265000581741333</y>
+            <z>2.550250291824341</z>
+        </bounds>
+        <scale>
+            <x>2.5</x>
+            <y>2.5</y>
+            <z>2.5</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-1.0</y>
+            <z>0.0</z>
+            <angle>2.3561947</angle>
+        </rotation>
+    </position-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/tent-simple.kmz/tent-simple.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

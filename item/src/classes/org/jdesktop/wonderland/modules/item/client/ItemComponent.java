@@ -30,6 +30,8 @@ import org.jdesktop.wonderland.client.ClientContext;
 import org.jdesktop.wonderland.client.cell.Cell;
 import org.jdesktop.wonderland.client.cell.CellComponent;
 import org.jdesktop.wonderland.client.cell.CellRenderer;
+import org.jdesktop.wonderland.client.cell.ChannelComponent;
+import org.jdesktop.wonderland.client.cell.ChannelComponent.ComponentMessageReceiver;
 import org.jdesktop.wonderland.client.cell.annotation.UsesCellComponent;
 import org.jdesktop.wonderland.client.cell.asset.AssetUtils;
 import org.jdesktop.wonderland.client.comms.WonderlandSession;
@@ -47,10 +49,12 @@ import org.jdesktop.wonderland.client.jme.cellrenderer.ModelRenderer;
 import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.client.scenemanager.event.ContextEvent;
 import org.jdesktop.wonderland.common.cell.CellStatus;
+import org.jdesktop.wonderland.common.cell.messages.CellMessage;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
 import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 import org.jdesktop.wonderland.modules.item.common.ItemComponentClientState;
+import org.jdesktop.wonderland.modules.item.common.ItemOwnerChangeMessage;
 
 /**
  * Adds a context menu item to the object with which a user (with the
@@ -67,7 +71,9 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
   private String menuItemText = "Pick Up";
   private String xmlPath;
   private String imgPath;
+  private boolean once;
   private Ability[] abilities;
+  private String[] owners;
 
   private final String configFileName = "scavenger_hunt.ini";
   private final String roleLineStartsWith = "role";
@@ -82,6 +88,12 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
   public ItemComponent(Cell cell)
   {
     super(cell);
+//    owners = new String[]
+//    {
+//      "jon"
+//    };
+//    ItemOwnerChangeMessage msg = new ItemOwnerChangeMessage(cell.getCellID(), owners);
+//    cell.sendCellMessage(msg);
 
     final ContextMenuItem item = new SimpleContextMenuItem(menuItemText, this);
     menuFactory = new ContextMenuFactorySPI()
@@ -108,11 +120,17 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     {
       contextMenu.addContextMenuFactory(menuFactory);
       displayItemEffect(true);
+
+      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
+      channel.addMessageReceiver(ItemOwnerChangeMessage.class, new ItemComponentMessageReceiver());
     }
     else if (status == CellStatus.INACTIVE && !increasing)
     {
       contextMenu.removeContextMenuFactory(menuFactory);
       displayItemEffect(false);
+
+      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
+      channel.removeMessageReceiver(ItemOwnerChangeMessage.class);
 
       just_removed = true;
     }
@@ -125,13 +143,36 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     super.setStatus(status, increasing);
   }
 
+  class ItemComponentMessageReceiver implements ComponentMessageReceiver
+  {
+
+    @Override
+    public void messageReceived(CellMessage message)
+    {
+      ItemOwnerChangeMessage iocm = (ItemOwnerChangeMessage) message;
+//      owners = iocm.getOwners();
+      if (!iocm.getSenderID().equals(cell.getCellCache().getSession().getID()))
+      {
+        owners = iocm.getOwners();
+      }
+
+      System.out.println("Received new owners for item " + cell.getName());
+      for (String owner : owners)
+      {
+        System.out.println("  " + owner);
+      }
+    }
+  }
+
   @Override
   public void setClientState(CellComponentClientState clientState)
   {
     super.setClientState(clientState);
     xmlPath = ((ItemComponentClientState) clientState).getXmlPath();
     imgPath = ((ItemComponentClientState) clientState).getImgPath();
+    once = ((ItemComponentClientState) clientState).getOnce();
     abilities = ((ItemComponentClientState) clientState).getAbilities();
+    owners = ((ItemComponentClientState) clientState).getOwners();
 
     displayItemEffect(true);
   }
@@ -149,15 +190,6 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
       {
         Ability userAbility = student.getAbility();
 
-//        if (userAbility != null)
-//        {
-//          String userAbilityString = Abilities.getStringFromAbility(userAbility);
-//          System.out.println("Your ability is: " + userAbilityString);
-//        }
-//        else
-//        {
-//          System.out.println("Your ability is null");
-//        }
         String itemAbilitiesString = "";
         if (abilities != null)
         {
@@ -165,27 +197,78 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
           {
             itemAbilitiesString += Abilities.getStringFromAbility(ability) + " ";
           }
-//          System.out.println("The item's abilities are: " + itemAbilitiesString);
         }
-//        else
-//        {
-//          System.out.println("The item's abilities are null");
-//        }
 
-        boolean contains = false;
+        boolean isAble = false;
 
         if (userAbility != null && abilities != null)
         {
-          contains = Arrays.asList(abilities).contains(userAbility);
+          isAble = Arrays.asList(abilities).contains(userAbility);
         }
 
-        if (contains)
+        boolean otherOwners;
+        if (owners.length == 0)
+        {
+          otherOwners = false;
+        }
+        else if (owners.length == 1 && owners[0].equals(userName))
+        {
+          otherOwners = false;
+        }
+        else
+        {
+          otherOwners = true;
+        }
+
+        if (once && otherOwners)
+        {
+          JOptionPane.showMessageDialog(null,
+            "You cannot pick up this item. It can be picked up only once and "
+            + "it seems like someone else was faster than you.", "Denial",
+            JOptionPane.ERROR_MESSAGE);
+        }
+        else if (!isAble)
+        {
+          JOptionPane.showMessageDialog(null,
+            "Only the following people can pick up this item: "
+            + itemAbilitiesString, "Denial",
+            JOptionPane.ERROR_MESSAGE);
+        }
+        else
         {
           boolean success = getItemFromServer();
 
           //TODO: maybe remove this or replace JOptionPane with HUD?
           if (success)
           {
+            boolean alreadyInList = false;
+            for (String owner : owners)
+            {
+              if (owner.equals(userName))
+              {
+                alreadyInList = true;
+                break;
+              }
+            }
+
+            if (!alreadyInList)
+            {
+              int newLength = owners.length + 1;
+              String[] ownersNew = new String[newLength];
+              for (int i = 0; i < newLength - 1; i++)
+              {
+//                System.out.println("  " + owners[i]);
+                ownersNew[i] = owners[i];
+              }
+
+              ownersNew[newLength - 1] = userName;
+              owners = ownersNew;
+//              System.out.println("Added " + userName + " to list of item owners.");
+
+              ItemOwnerChangeMessage msg = new ItemOwnerChangeMessage(cell.getCellID(), owners);
+              cell.sendCellMessage(msg);
+            }
+
             JOptionPane.showMessageDialog(null, "Item information was picked "
               + "up. You are now able to see it in your Inventory.",
               "Success",
@@ -198,13 +281,6 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
               "Failure",
               JOptionPane.WARNING_MESSAGE);
           }
-        }
-        else
-        {
-          JOptionPane.showMessageDialog(null,
-            "Only the following people can pick up this item: " + itemAbilitiesString,
-            "Denial",
-            JOptionPane.ERROR_MESSAGE);
         }
       }
     }
@@ -233,6 +309,8 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     }
     catch (IOException ex)
     {
+      System.out.println(ex.toString());
+      ex.printStackTrace();
       Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE,
         "Could not open file.");
     }
@@ -299,7 +377,22 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     return conn.getInputStream();
   }
 
-  public String getInfoText()
+  public boolean getOnce()
+  {
+    return once;
+  }
+
+  public Ability[] getAbilities()
+  {
+    return abilities;
+  }
+
+  public String[] getOwners()
+  {
+    return owners;
+  }
+
+  public String getTitle()
   {
     String text;
     try
@@ -310,26 +403,36 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
       Unmarshaller marshal = context.createUnmarshaller();
 
       Item unmarshalled = (Item) marshal.unmarshal(in);
-
-      /*
-       InputStreamReader inReader = new InputStreamReader(in);
-       BufferedReader bufReader = new BufferedReader(inReader);
-       String line;
-       while ((line = bufReader.readLine()) != null)
-       {
-       text += line + "\n";
-       }
-
-       bufReader.close();
-       */
-      text = "<h1>" + unmarshalled.getTitle() + "</h1>" + unmarshalled.getContent();
+      text = unmarshalled.getTitle();
     }
     catch (IOException e)
     {
-      /*
-       Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE,
-       "Sorry, could not open xml description file.", e);
-       */
+      text = "Sorry.";
+    }
+    catch (JAXBException ex)
+    {
+      Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE, null, ex);
+      text = "Error: wrong format.";
+    }
+
+    return text;
+  }
+
+  public String getContent()
+  {
+    String text;
+    try
+    {
+      InputStream in = openFile(xmlPath);
+
+      JAXBContext context = JAXBContext.newInstance(Item.class);
+      Unmarshaller marshal = context.createUnmarshaller();
+
+      Item unmarshalled = (Item) marshal.unmarshal(in);
+      text = unmarshalled.getContent();
+    }
+    catch (IOException e)
+    {
       text = "Sorry, could not open xml description file.";
     }
     catch (JAXBException ex)

@@ -12,7 +12,9 @@ public class ItemComponentClientState extends CellComponentClientState
 
   private String xmlPath;
   private String imgPath;
+  private boolean once;
   private Ability[] abilities;
+  private String[] owners;
 
   public ItemComponentClientState()
   {
@@ -38,6 +40,16 @@ public class ItemComponentClientState extends CellComponentClientState
     this.imgPath = imgPath;
   }
 
+  public boolean getOnce()
+  {
+    return once;
+  }
+
+  public void setOnce(boolean once)
+  {
+    this.once = once;
+  }
+
   public Ability[] getAbilities()
   {
     return abilities;
@@ -46,5 +58,15 @@ public class ItemComponentClientState extends CellComponentClientState
   public void setAbilities(Ability[] abilities)
   {
     this.abilities = abilities;
+  }
+
+  public String[] getOwners()
+  {
+    return owners;
+  }
+
+  public void setOwners(String[] owners)
+  {
+    this.owners = owners;
   }
 }

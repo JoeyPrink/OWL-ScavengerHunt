@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<loader-data>
+    <version>1</version>
+    <modelLoaderClassname>org.jdesktop.wonderland.modules.kmzloader.client.KmzLoader</modelLoaderClassname>
+    <deployedTextures key="./untitled/texture_7.jpg" value="./untitled/texture_7.jpg"/>
+    <deployedTextures key="./untitled/texture_3.jpg" value="./untitled/texture_3.jpg"/>
+    <deployedTextures key="./untitled/texture_0.jpg" value="./untitled/texture_0.jpg"/>
+    <deployedTextures key="./untitled/texture.jpg" value="./untitled/texture.jpg"/>
+    <deployedTextures key="./untitled/texture_8.jpg" value="./untitled/texture_8.jpg"/>
+    <deployedTextures key="./untitled/texture_4.jpg" value="./untitled/texture_4.jpg"/>
+    <deployedTextures key="./untitled/texture_6.jpg" value="./untitled/texture_6.jpg"/>
+    <deployedTextures key="./untitled/texture_1.jpg" value="./untitled/texture_1.jpg"/>
+    <deployedTextures key="./untitled/texture_5.jpg" value="./untitled/texture_5.jpg"/>
+    <deployedTextures key="./untitled/texture_2.jpg" value="./untitled/texture_2.jpg"/>
+</loader-data>

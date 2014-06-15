@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>person-normad.kmz</name>
+    <metadata/>
+    <chatbot-cell-component>
+        <xmlPath>wlcontent://users/lisa/chat/ancient_person_chat.xml</xmlPath>
+        <isPandoraBot>false</isPandoraBot>
+        <botId>enter Bot Id</botId>
+        <botName>Ramses</botName>
+    </chatbot-cell-component>
+    <position-component>
+        <translation>
+            <x>-11.2</x>
+            <y>1.03</y>
+            <z>21.0</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.3665809631347656</x>
+            <y>0.934415340423584</y>
+            <z>0.5290471911430359</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>0.99999994</y>
+            <z>0.0</z>
+            <angle>1.5707963</angle>
+        </rotation>
+    </position-component>
+    <model-cell-component>
+        <deployedModelURL>wla://wonderland-mazeworld/person-normad.kmz/person-normad.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>

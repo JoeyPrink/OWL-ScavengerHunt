@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<itemboard-cell-svg>
+    <name>Itemboard</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>18.82</x>
+            <y>3.8138962</y>
+            <z>25.5</z>
+        </translation>
+        <bounds>
+            <type>SPHERE</type>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-1.0</y>
+            <z>0.0</z>
+            <angle>2.3561947</angle>
+        </rotation>
+    </position-component>
+    <best-view-component/>
+    <preferredWidth>800</preferredWidth>
+    <preferredHeight>600</preferredHeight>
+    <svgDocumentXML>&lt;svg contentScriptType="text/ecmascript" xmlns:xlink="http://www.w3.org/1999/xlink" zoomAndPan="magnify" contentStyleType="text/css" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" version="1.0"&gt;&lt;text x="13" fill="rgb(0,0,0)" font-size="30" id="161402022633200" y="33"&gt;Write your ideas here:&lt;/text&gt;&lt;/svg&gt;</svgDocumentXML>
+</itemboard-cell-svg>

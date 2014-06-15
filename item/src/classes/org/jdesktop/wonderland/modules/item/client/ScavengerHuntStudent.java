@@ -12,7 +12,7 @@ import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
-class ScavengerHuntStudent
+public class ScavengerHuntStudent
 {
 
   private String username;

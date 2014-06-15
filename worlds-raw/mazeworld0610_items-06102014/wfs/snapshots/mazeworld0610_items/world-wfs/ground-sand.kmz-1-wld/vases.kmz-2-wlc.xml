@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model-cell>
+    <name>vases.kmz</name>
+    <metadata/>
+    <position-component>
+        <translation>
+            <x>-23.6</x>
+            <y>6.45</y>
+            <z>-2.8000002</z>
+        </translation>
+        <bounds>
+            <type>BOX</type>
+            <x>0.6476237773895264</x>
+            <y>0.2926396131515503</y>
+            <z>0.8257073163986206</z>
+        </bounds>
+        <scale>
+            <x>1.0</x>
+            <y>1.0</y>
+            <z>1.0</z>
+        </scale>
+        <rotation>
+            <x>0.0</x>
+            <y>-0.99999994</y>
+            <z>0.0</z>
+            <angle>2.094395</angle>
+        </rotation>
+    </position-component>
+    <model-cell-component>
+        <deployedModelURL>wlcontent://users@ASUS-PC:8080/lisa/art/vases.kmz/vases.kmz.dep</deployedModelURL>
+        <PickingEnabled>true</PickingEnabled>
+        <CollisionEnabled>true</CollisionEnabled>
+        <LightingEnabled>true</LightingEnabled>
+        <BackfaceCullingEnabled>true</BackfaceCullingEnabled>
+        <GraphOptimizationEnabled>true</GraphOptimizationEnabled>
+        <TransparencyMode>DEFAULT</TransparencyMode>
+    </model-cell-component>
+</model-cell>
