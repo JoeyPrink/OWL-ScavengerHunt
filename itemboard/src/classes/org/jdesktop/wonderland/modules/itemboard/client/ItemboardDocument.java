@@ -562,7 +562,7 @@ public class ItemboardDocument implements SVGDocumentLoaderListener
 
       // scale image's longer size to max size but only if image is bigger (do not enlarge)
       Image imageForSize = image;
-      if (image.getWidth() > image.getHeight() && image.getWidth() > IMAGE_LONGER_SIDE_SIZE)
+      if (image.getWidth() >= image.getHeight() && image.getWidth() > IMAGE_LONGER_SIDE_SIZE)
       {
         imageForSize = image.getScaledInstance(IMAGE_LONGER_SIDE_SIZE, -1, Image.SCALE_DEFAULT);
       }

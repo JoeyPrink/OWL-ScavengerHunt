@@ -104,7 +104,7 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
               if (userAbility != null)
               {
                 String userAbilityString = Abilities.getStringFromAbility(userAbility);
-                JOptionPane.showMessageDialog(null, "Your ability is: "
+                JOptionPane.showMessageDialog(null, "Your role is: "
                   + userAbilityString, "Info", JOptionPane.INFORMATION_MESSAGE);
               }
               else

@@ -4,9 +4,12 @@
  */
 package org.jdesktop.wonderland.modules.quiz.server;
 
+import com.jme.math.Quaternion;
+import com.jme.math.Vector3f;
 import org.jdesktop.wonderland.common.cell.ClientCapabilities;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 import org.jdesktop.wonderland.common.cell.state.CellComponentServerState;
+import org.jdesktop.wonderland.modules.quiz.common.Quiz;
 import org.jdesktop.wonderland.modules.quiz.common.QuizComponentClientState;
 import org.jdesktop.wonderland.modules.quiz.common.QuizComponentServerState;
 import org.jdesktop.wonderland.server.cell.CellComponentMO;
@@ -20,7 +23,9 @@ import org.jdesktop.wonderland.server.comms.WonderlandClientID;
 public class QuizComponentMO extends CellComponentMO
 {
 
-  private String xmlPath;
+  private Quiz quiz;
+  private Vector3f location;
+  private Quaternion look;
 
   public QuizComponentMO(CellMO cell)
   {
@@ -34,7 +39,9 @@ public class QuizComponentMO extends CellComponentMO
     {
       state = new QuizComponentClientState();
     }
-    ((QuizComponentClientState) state).setXmlPath(xmlPath);
+    ((QuizComponentClientState) state).setQuiz(quiz);
+    ((QuizComponentClientState) state).setLocation(location);
+    ((QuizComponentClientState) state).setLook(look);
 
     return super.getClientState(state, clientID, capabilities);
   }
@@ -46,7 +53,9 @@ public class QuizComponentMO extends CellComponentMO
     {
       state = new QuizComponentServerState();
     }
-    ((QuizComponentServerState) state).setXmlPath(xmlPath);
+    ((QuizComponentServerState) state).setQuiz(quiz);
+    ((QuizComponentServerState) state).setLocation(location);
+    ((QuizComponentServerState) state).setLook(look);
 
     return super.getServerState(state);
   }
@@ -55,7 +64,9 @@ public class QuizComponentMO extends CellComponentMO
   public void setServerState(CellComponentServerState state)
   {
     super.setServerState(state);
-    xmlPath = ((QuizComponentServerState) state).getXmlPath();
+    quiz = ((QuizComponentServerState) state).getQuiz();
+    location = ((QuizComponentServerState) state).getLocation();
+    look = ((QuizComponentServerState) state).getLook();
   }
 
   @Override

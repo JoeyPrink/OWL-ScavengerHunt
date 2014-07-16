@@ -161,6 +161,8 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
       {
         System.out.println("  " + owner);
       }
+
+      displayItemEffect(!once || owners.length < 1);
     }
   }
 
@@ -377,6 +379,11 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     return conn.getInputStream();
   }
 
+  public String getPathToXMLFile()
+  {
+    return xmlPath;
+  }
+
   public boolean getOnce()
   {
     return once;
@@ -385,6 +392,45 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
   public Ability[] getAbilities()
   {
     return abilities;
+  }
+
+  public boolean removeOwner(String userName)
+  {
+    int removeIndex = -1;
+
+    for (int index = 0; index < owners.length; index++)
+    {
+      if (owners[index].equals(userName))
+      {
+        removeIndex = index;
+        break;
+      }
+    }
+
+    // Nothing to remove
+    if (removeIndex == -1)
+    {
+      return false;
+    }
+
+    // Make new array one element smaller than old one
+    String[] newOwners = new String[owners.length - 1];
+    int newIndex = 0;
+    for (int index = 0; index < owners.length; index++)
+    {
+      // Copy old array into new one but leave out userName to delete
+      if (index != removeIndex)
+      {
+        newOwners[newIndex] = owners[index];
+        newIndex++;
+      }
+    }
+    owners = newOwners;
+
+    ItemOwnerChangeMessage msg = new ItemOwnerChangeMessage(cell.getCellID(), owners);
+    cell.sendCellMessage(msg);
+
+    return true;
   }
 
   public String[] getOwners()

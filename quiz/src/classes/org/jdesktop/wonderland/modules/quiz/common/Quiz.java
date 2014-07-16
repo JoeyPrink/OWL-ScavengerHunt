@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.jdesktop.wonderland.modules.quiz.client;
+package org.jdesktop.wonderland.modules.quiz.common;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import javax.xml.bind.annotation.XmlElement;
@@ -17,7 +18,7 @@ import javax.xml.bind.annotation.XmlTransient;
  * Quiz and not Chatlog, because I want to use this class in a other module too
  */
 @XmlRootElement(name = "Quiz")
-public class Quiz
+public class Quiz implements Serializable
 {
 
   @XmlElement(name = "name")
@@ -73,11 +74,14 @@ public class Quiz
   @Override
   public String toString()
   {
-    return "Quiz{" + "name=" + name + ", questions=" + questions + '}';
+    return name + " (" + questions.size() + " Questions)";
   }
 
+  /**
+   *
+   */
   @XmlRootElement(name = "Question")
-  public static class Question
+  public static class Question implements Serializable
   {
 
     public enum QUESTIONTYPE
@@ -166,7 +170,7 @@ public class Quiz
     @Override
     public String toString()
     {
-      return "Question{" + "title=" + title + ", type=" + type + ", text=" + text + ", answers=" + answers + '}';
+      return title + " (" + type + ")";
     }
   }
 }

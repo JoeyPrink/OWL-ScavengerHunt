@@ -5,12 +5,19 @@
 package org.jdesktop.wonderland.modules.quiz.client;
 
 import com.jme.bounding.BoundingVolume;
+import com.jme.math.Quaternion;
+import com.jme.math.Vector3f;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -33,10 +40,13 @@ import org.jdesktop.wonderland.client.input.EventClassListener;
 import org.jdesktop.wonderland.client.jme.ClientContextJME;
 import org.jdesktop.wonderland.client.jme.cellrenderer.CellRendererJME;
 import org.jdesktop.wonderland.client.jme.input.AvatarCollisionEvent;
+import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.common.cell.CellID;
 import org.jdesktop.wonderland.common.cell.CellStatus;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
-import org.jdesktop.wonderland.modules.quiz.client.Quiz.Question.QUESTIONTYPE;
+import org.jdesktop.wonderland.modules.quiz.common.Quiz;
+import org.jdesktop.wonderland.modules.quiz.common.Quiz.Question.QUESTIONTYPE;
+import org.jdesktop.wonderland.modules.quiz.common.QuizComponentClientState;
 
 /**
  *
@@ -46,13 +56,21 @@ public class QuizComponent extends CellComponent implements ProximityListener
 {
   // start quiz when user comes near object
 
+  private Quiz quiz;
+  private Vector3f location;
+  private Quaternion look;
+
   @UsesCellComponent
   private HUDComponent quizHUDComponent = null;
   private CollisionListener collisionListener = null;
 
+  private final HashMap<JCheckBox, Boolean> correctionModel;
+
   public QuizComponent(Cell cell)
   {
     super(cell);
+
+    correctionModel = new HashMap<JCheckBox, Boolean>();
   }
 
   @Override
@@ -94,6 +112,12 @@ public class QuizComponent extends CellComponent implements ProximityListener
   public void setClientState(CellComponentClientState clientState)
   {
     super.setClientState(clientState);
+
+    QuizComponentClientState state = (QuizComponentClientState) clientState;
+
+    this.quiz = state.getQuiz();
+    this.location = state.getLocation();
+    this.look = state.getLook();
   }
 
   public void getXMLFromServer()
@@ -116,6 +140,8 @@ public class QuizComponent extends CellComponent implements ProximityListener
     int numQuestions = questions.size();
 
     quizPanel.setLayout(new GridLayout(numQuestions, 1, 5, 5));
+
+    correctionModel.clear();
 
     for (int i = 0; i < numQuestions; i++)
     {
@@ -147,11 +173,16 @@ public class QuizComponent extends CellComponent implements ProximityListener
         answerPanel.setLayout(new GridLayout(numAnswers, 1));
         questionPanel.add(answerPanel, BorderLayout.CENTER);
 
+        Set<Map.Entry<String, Boolean>> answerEntrySet = answers.entrySet();
+
         int j = 0;
-        for (String answer : answers.keySet())
+        for (Map.Entry<String, Boolean> answerEntry : answerEntrySet)
         {
+          String answer = answerEntry.getKey();
+
           JCheckBox cbAnswerJ = new JCheckBox(answer);
           answerPanel.add(cbAnswerJ, j);
+          correctionModel.put(cbAnswerJ, answerEntry.getValue());
           cbAnswerJ.addItemListener(new AnswerCheckboxItemListener());
 
           j++;
@@ -191,8 +222,6 @@ public class QuizComponent extends CellComponent implements ProximityListener
 
   public void displayQuiz()
   {
-    Quiz quiz = Quiz.sampleQuiz(); // TODO: Read real Quiz
-
     if (quizHUDComponent == null)
     {
       quizHUDComponent = createQuizHUDComponent(quiz);
@@ -203,44 +232,43 @@ public class QuizComponent extends CellComponent implements ProximityListener
     {
       quizHUDComponent.setVisible(true);
     }
-
-    teleport();
   }
 
   private void teleport()
   {
-    System.out.println("woooosh");
+//    System.out.println("woooosh");
 
-//    // teleport in a separate thread, since we don't know which one we
-//    // are called on
-//    Thread t = new Thread(new Runnable()
-//    {
-//      public void run()
-//      {
-//        try
-//        {
-//                    // teleport!
-//          //teleportAudio.play();
-//
-//          System.out.println("GOTO LOCATION " + serverURL + " " + location);
-//
-//          ClientContextJME.getClientMain().gotoLocation(serverURL, location, look);
-//
-//		    //URL url = PortalComponent.class.getResource(
-//          //	"resources/" + "Teleport.au")
-//          logger.warning("[PortalComponent] going to " + serverURL
-//            + " at " + location + ", " + look);
-//
-//          SoftphoneControlImpl.getInstance().sendCommandToSoftphone(
-//            "playFile=" + audioSource + "=" + volume);
-//        }
-//        catch (IOException ex)
-//        {
-//          logger.log(Level.WARNING, "Error teleporting", ex);
-//        }
-//      }
-//    }, "Teleporter");
-//    t.start();
+    // teleport in a separate thread, since we don't know which one we
+    // are called on
+    // if you say so...
+    Thread t = new Thread(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        try
+        {
+          // teleport!
+
+          String serverURL = LoginManager.getPrimary().getServerURL();
+          System.out.println("GOTO LOCATION " + serverURL + " " + location);
+
+          ClientContextJME.getClientMain().gotoLocation(serverURL, location, look);
+
+          //URL url = PortalComponent.class.getResource(
+          //	"resources/" + "Teleport.au")
+          Logger.getLogger(QuizComponent.class.getName()).log(Level.WARNING, "[PortalComponent] going to {0} at {1}, {2}", new Object[]
+          {
+            serverURL, location, look
+          });
+        }
+        catch (IOException ex)
+        {
+          Logger.getLogger(QuizComponent.class.getName()).log(Level.WARNING, "Error teleporting", ex);
+        }
+      }
+    }, "Teleporter");
+    t.start();
   }
 
   class CollisionListener extends EventClassListener
@@ -272,7 +300,31 @@ public class QuizComponent extends CellComponent implements ProximityListener
     {
       JCheckBox affected = (JCheckBox) e.getItem();
       System.out.println(affected.getText() + " changed.");
+
+      checkAnswers();
+    }
+  }
+
+  private void checkAnswers()
+  {
+    boolean correct = true;
+
+    Set<Map.Entry<JCheckBox, Boolean>> entrySet = correctionModel.entrySet();
+    for (Map.Entry<JCheckBox, Boolean> entry : entrySet)
+    {
+      JCheckBox checkBox = entry.getKey();
+      boolean currentSelectionValue = checkBox.isSelected();
+      boolean correctSelectionValue = entry.getValue();
+      if (currentSelectionValue != correctSelectionValue)
+      {
+        correct = false;
+        break;
+      }
     }
 
+    if (correct)
+    {
+      teleport();
+    }
   }
 }

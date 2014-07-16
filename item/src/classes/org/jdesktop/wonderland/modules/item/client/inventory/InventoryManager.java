@@ -3,6 +3,8 @@ package org.jdesktop.wonderland.modules.item.client.inventory;
 import java.awt.Canvas;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -15,6 +17,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
+import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -52,6 +56,9 @@ public class InventoryManager
   private ArrayList<Item> itemEntryList;
   private ArrayList<ItemComponent> itemEntryListAll;
 
+  DefaultListModel<ItemComponent> dlm;
+  ItemListCellRenderer cellRenderer;
+
   public InventoryManager()
   {
     itemPanel = new ItemPanel();
@@ -62,12 +69,37 @@ public class InventoryManager
 
     itemPanel.setBorder(null);
 
+    dlm = new DefaultListModel<ItemComponent>();
+    cellRenderer = new ItemListCellRenderer(itemEntryList);
+
+    itemPanel.getList().setModel(dlm);
+    itemPanel.getList().setCellRenderer(cellRenderer);
+
     itemPanel.getList().addListSelectionListener(new ListSelectionListener()
     {
+      @Override
       public void valueChanged(ListSelectionEvent e)
       {
         updateItemContent();
       }
+    });
+
+    itemPanel.getReturnButton().addActionListener(new ActionListener()
+    {
+
+      @Override
+      public void actionPerformed(ActionEvent e)
+      {
+        int chosenOption = JOptionPane.showConfirmDialog(itemPanel,
+          "Do you really want to return this item?",
+          "Please confirm",
+          JOptionPane.YES_NO_OPTION);
+        if (chosenOption == JOptionPane.YES_OPTION)
+        {
+          removeSelectedItem();
+        }
+      }
+
     });
 
     itemEntryList = new ArrayList<Item>();
@@ -75,6 +107,93 @@ public class InventoryManager
 
     updateItemList();
     updateItemContent();
+  }
+
+  private void removeSelectedItem()
+  {
+    JList itemList = itemPanel.getList();
+    int selectedIndex = itemList.getSelectedIndex();
+
+    if (selectedIndex > -1 && selectedIndex < dlm.getSize())
+    {
+      Object listElement = dlm.getElementAt(selectedIndex);
+      if (listElement instanceof ItemComponent)
+      {
+        ItemComponent returnItem = (ItemComponent) listElement;
+
+        boolean wasOwner = removeOwnership(returnItem);
+        if (wasOwner)
+        {
+          removeItemFromUserDirectory(returnItem);
+          removeItemFromList(returnItem);
+          updateItemContent();
+        }
+      }
+    }
+  }
+
+  private boolean removeOwnership(ItemComponent returnItem)
+  {
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
+
+    if (returnItem.removeOwner(userName))
+    {
+      JOptionPane.showMessageDialog(null, "Item successfully returned.", "Success", JOptionPane.INFORMATION_MESSAGE);
+      return true;
+    }
+    else
+    {
+      JOptionPane.showMessageDialog(null, "Error: You cannot return this item "
+        + "because you do not own it.", "Error", JOptionPane.ERROR_MESSAGE);
+      return false;
+    }
+  }
+
+  private void removeItemFromUserDirectory(ItemComponent returnItem)
+  {
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
+    File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
+
+    String pathToXMLFile = returnItem.getPathToXMLFile();
+
+    String fileName = ItemUtils.getFileNameFromPath(pathToXMLFile);
+
+    for (File childFile : folder.listFiles())
+    {
+      String childFileName = childFile.getName();
+      String childFileNamePlain = childFileName.substring(0, childFileName.lastIndexOf("."));
+
+      String searchFileNamePlain = fileName.substring(0, fileName.lastIndexOf("."));
+
+      if (childFile.isFile() && childFileNamePlain.equals(searchFileNamePlain))
+      {
+        childFile.delete();
+      }
+    }
+  }
+
+  private void removeItemFromList(ItemComponent removeItem)
+  {
+    int removeIndex = -1;
+
+    int index = 0;
+    for (Item item : itemEntryList)
+    {
+      if (item.getTitle().equals(removeItem.getTitle())
+        && item.getContent().equals(removeItem.getContent()))
+      {
+        removeIndex = index;
+      }
+
+      index++;
+    }
+
+    if (removeIndex > -1 && removeIndex < itemEntryList.size())
+    {
+      itemEntryList.remove(removeIndex);
+    }
   }
 
   private void createListOfAllObjectsItem(Cell cell)
@@ -232,10 +351,8 @@ public class InventoryManager
   {
     String[] list;
 
-    DefaultListModel<ItemComponent> dlm = new DefaultListModel<ItemComponent>();
-
-    itemPanel.getList().setModel(dlm);
-    itemPanel.getList().setCellRenderer(new ItemListCellRenderer(itemEntryList));
+    dlm.clear();
+    cellRenderer.setItemEntryList(itemEntryList);
 
     if (itemEntryListAll == null || itemEntryListAll.isEmpty())
     {
@@ -288,6 +405,8 @@ public class InventoryManager
 
     if (entry != null)  // Yes, he does
     {
+      itemPanel.getReturnButton().setEnabled(true);
+
       String content = entry.getContent();
       content = content.replaceAll("&#xD;", "\n");
       itemPanel.getTextPane().setContentType("text/html");
@@ -301,6 +420,8 @@ public class InventoryManager
     }
     else  // No, he doesn't
     {
+      itemPanel.getReturnButton().setEnabled(false);
+
       Abilities.Ability[] abilities = comp.getAbilities();
 
       // Is the user able to pick up this item?

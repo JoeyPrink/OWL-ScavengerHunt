@@ -35,6 +35,11 @@ public class ItemListCellRenderer extends JLabel implements ListCellRenderer
     this.itemEntryList = itemEntryList;
   }
 
+  public void setItemEntryList(ArrayList<Item> itemEntryList)
+  {
+    this.itemEntryList = itemEntryList;
+  }
+
   @Override
   public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
   {

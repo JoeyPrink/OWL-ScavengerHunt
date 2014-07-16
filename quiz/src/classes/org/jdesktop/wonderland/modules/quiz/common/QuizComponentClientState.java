@@ -4,6 +4,8 @@
  */
 package org.jdesktop.wonderland.modules.quiz.common;
 
+import com.jme.math.Quaternion;
+import com.jme.math.Vector3f;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 
 /**
@@ -13,19 +15,48 @@ import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
 public class QuizComponentClientState extends CellComponentClientState
 {
 
-  private String xmlPath;
+  private Quiz quiz;
+  private Vector3f location;
+  private Quaternion look;
 
   public QuizComponentClientState()
   {
   }
 
-  public String getXmlPath()
+  public QuizComponentClientState(Quiz quiz, Vector3f location, Quaternion look)
   {
-    return xmlPath;
+    this.quiz = quiz;
+    this.location = location;
+    this.look = look;
   }
 
-  public void setXmlPath(String xmlPath)
+  public Quiz getQuiz()
   {
-    this.xmlPath = xmlPath;
+    return quiz;
+  }
+
+  public void setQuiz(Quiz quiz)
+  {
+    this.quiz = quiz;
+  }
+
+  public Vector3f getLocation()
+  {
+    return location;
+  }
+
+  public void setLocation(Vector3f location)
+  {
+    this.location = location;
+  }
+
+  public Quaternion getLook()
+  {
+    return look;
+  }
+
+  public void setLook(Quaternion look)
+  {
+    this.look = look;
   }
 }

@@ -1,5 +1,6 @@
 package org.jdesktop.wonderland.modules.item.client.inventory;
 
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTextPane;
@@ -20,6 +21,11 @@ public class ItemPanel extends javax.swing.JPanel
   public ItemPanel()
   {
     initComponents();
+  }
+
+  public JButton getReturnButton()
+  {
+    return btReturn;
   }
 
   public JTextPane getTextPane()
@@ -60,6 +66,7 @@ public class ItemPanel extends javax.swing.JPanel
     jPanel2 = new javax.swing.JPanel();
     jScrollPane1 = new javax.swing.JScrollPane();
     itemList = new javax.swing.JList();
+    btReturn = new javax.swing.JButton();
 
     jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
     jLabel1.setText("Title:");
@@ -107,6 +114,9 @@ public class ItemPanel extends javax.swing.JPanel
           .addContainerGap()))
     );
 
+    btReturn.setText("<");
+    btReturn.setToolTipText("Return this item");
+
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
     this.setLayout(layout);
     layout.setHorizontalGroup(
@@ -117,9 +127,12 @@ public class ItemPanel extends javax.swing.JPanel
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addComponent(btReturn)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(jLabel1)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(titelLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
+            .addComponent(titelLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 157, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addGap(0, 32, Short.MAX_VALUE))
           .addComponent(jScrollPane2)
           .addComponent(lbImage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addGap(14, 14, 14))
@@ -132,16 +145,19 @@ public class ItemPanel extends javax.swing.JPanel
           .addGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
               .addComponent(jLabel1)
-              .addComponent(titelLabel))
+              .addComponent(titelLabel)
+              .addComponent(btReturn))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addComponent(lbImage, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 154, Short.MAX_VALUE))
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 171, Short.MAX_VALUE))
           .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         .addContainerGap())
     );
   }// </editor-fold>//GEN-END:initComponents
+
   // Variables declaration - do not modify//GEN-BEGIN:variables
+  private javax.swing.JButton btReturn;
   private javax.swing.JList itemList;
   private javax.swing.JTextPane itemTextPane;
   private javax.swing.JLabel jLabel1;
