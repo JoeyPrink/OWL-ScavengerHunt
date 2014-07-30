@@ -10,7 +10,8 @@ import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 public class ItemComponentClientState extends CellComponentClientState
 {
 
-  private String xmlPath;
+  private String title;
+  private String description;
   private String imgPath;
   private boolean once;
   private Ability[] abilities;
@@ -20,14 +21,24 @@ public class ItemComponentClientState extends CellComponentClientState
   {
   }
 
-  public String getXmlPath()
+  public String getTitle()
   {
-    return xmlPath;
+    return title;
   }
 
-  public void setXmlPath(String xmlPath)
+  public void setTitle(String title)
   {
-    this.xmlPath = xmlPath;
+    this.title = title;
+  }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public void setDescription(String description)
+  {
+    this.description = description;
   }
 
   public String getImgPath()
@@ -40,16 +51,6 @@ public class ItemComponentClientState extends CellComponentClientState
     this.imgPath = imgPath;
   }
 
-  public boolean getOnce()
-  {
-    return once;
-  }
-
-  public void setOnce(boolean once)
-  {
-    this.once = once;
-  }
-
   public Ability[] getAbilities()
   {
     return abilities;
@@ -58,6 +59,16 @@ public class ItemComponentClientState extends CellComponentClientState
   public void setAbilities(Ability[] abilities)
   {
     this.abilities = abilities;
+  }
+
+  public boolean getOnce()
+  {
+    return once;
+  }
+
+  public void setOnce(boolean once)
+  {
+    this.once = once;
   }
 
   public String[] getOwners()

@@ -59,7 +59,7 @@
         <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/3">
             <compilation-unit>
                 <package-root>src/classes</package-root>
-                <classpath mode="compile">../../../wonderland/core/build/lib/wonderland-client.jar;../../../wonderland/core/build/lib/wonderland-common.jar;../../../wonderland/core/build/lib/wonderland-server.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland\core\ext\jme20\target\jme.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland\core\ext\common\mtgame.jar</classpath>
+                <classpath mode="compile">../../../wonderland/core/build/lib/wonderland-client.jar;../../../wonderland/core/build/lib/wonderland-common.jar;../../../wonderland/core/build/lib/wonderland-server.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland\core\ext\jme20\target\jme.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland\core\ext\common\mtgame.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland-modules\read-only\modules\foundation\content-repository\dist\content-repository.jar;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland-modules\read-only\modules\foundation\content-repository\src\classes;U:\12. Semester\Masterarbeit\Wonderland_0.5\home\src\wonderland\trunk\wonderland\modules\tools\webdav\build\client\webdav-client.jar</classpath>
                 <source-level>1.7</source-level>
             </compilation-unit>
         </java-data>

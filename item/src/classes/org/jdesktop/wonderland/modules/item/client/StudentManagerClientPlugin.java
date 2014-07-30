@@ -26,6 +26,7 @@ import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.client.login.ServerSessionManager;
 import org.jdesktop.wonderland.common.annotation.Plugin;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 
 /**
  * Adds a menu item to the Tools menu which shows the StudentManagerPanel in a
@@ -52,7 +53,7 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
 
   public StudentManagerClientPlugin()
   {
-    studentManager = new StudentManager();
+    studentManager = StudentManager.getInstance();
   }
 
   @Override
@@ -96,7 +97,8 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
           {
             WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
             String userName = session.getUserID().getUsername();
-            ScavengerHuntStudent student = StudentManager.loadStudentFromFile(userName);
+//            studentManager.loadStudents();
+            ScavengerHuntStudent student = studentManager.loadStudentFromFile(userName);
             if (student != null)
             {
               Abilities.Ability userAbility = student.getAbility();
@@ -175,7 +177,7 @@ public class StudentManagerClientPlugin extends BaseClientPlugin
     hudComponent = mainHUD.createComponent(smPanel);
     hudComponent.setName(whoami);
     hudComponent.setPreferredLocation(CompassLayout.Layout.CENTER);
-    hudComponent.setSize(500, 500);
+//    hudComponent.setSize(600, 500);
 
     mainHUD.addComponent(hudComponent);
 

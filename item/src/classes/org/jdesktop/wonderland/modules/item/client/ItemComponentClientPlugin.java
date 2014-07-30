@@ -109,7 +109,7 @@ public class ItemComponentClientPlugin extends BaseClientPlugin
       MouseEvent mouseEvent = hoverEvent.getMouseEvent();
       Point location = mouseEvent.getPoint();
       location.y = canvas.getHeight() - location.y;
-      String text = "<h1>" + comp.getTitle() + "</h1>" + comp.getContent();
+      String text = "<h1>" + comp.getTitle() + "</h1>" + comp.getDescription();
       showInfoHUDComponent(text, location, canvas);
     }
 

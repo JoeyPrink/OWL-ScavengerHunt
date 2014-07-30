@@ -71,4 +71,28 @@ public class Abilities
     }
   }
 
+  public static Ability getAbilityFromString(String ability)
+  {
+    if (ability.equalsIgnoreCase("Adventurer"))
+    {
+      return Ability.ADVENTURER;
+    }
+    else if (ability.equalsIgnoreCase("Scientist"))
+    {
+      return Ability.SCIENTIST;
+    }
+    else if (ability.equalsIgnoreCase("Priest"))
+    {
+      return Ability.PRIEST;
+    }
+    else if (ability.equalsIgnoreCase("Historian"))
+    {
+      return Ability.HISTORIAN;
+    }
+    else
+    {
+      return Ability.UNKNOWN;
+    }
+  }
+
 }

@@ -42,6 +42,7 @@ import javax.swing.SwingUtilities;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 import org.apache.batik.swing.svg.SVGDocumentLoaderEvent;
 import org.apache.batik.swing.svg.SVGDocumentLoaderListener;
@@ -424,26 +425,33 @@ public class ItemboardDocument implements SVGDocumentLoaderListener
           String filePath = file.getAbsolutePath();
           if (filePath.endsWith(".xml"))
           {
-            Item unmarshalled = (Item) marshal.unmarshal(new FileReader(filePath));
-
-            // Backslash because it is local file
-            String fileName = file.getName();
-
-            // Cut off extension
-            int index = fileName.lastIndexOf(".");
-            fileName = fileName.substring(0, index);
-
-            File imgFile = searchImageFile(files, fileName);
-            if (imgFile != null)
+            try
             {
-              unmarshalled.setImage(imgFile.getAbsolutePath());
-            }
-            else
-            {
-              unmarshalled.setImage("no image");
-            }
+              Item unmarshalled = (Item) marshal.unmarshal(new FileReader(filePath));
 
-            itemEntryList.add(unmarshalled);
+              // Backslash because it is local file
+              String fileName = file.getName();
+
+              // Cut off extension
+              int index = fileName.lastIndexOf(".");
+              fileName = fileName.substring(0, index);
+
+              File imgFile = searchImageFile(files, fileName);
+              if (imgFile != null)
+              {
+                unmarshalled.setImage(imgFile.getAbsolutePath());
+              }
+              else
+              {
+                unmarshalled.setImage("no image");
+              }
+
+              itemEntryList.add(unmarshalled);
+            }
+            catch (UnmarshalException ex)
+            {
+
+            }
           }
         }
       }
@@ -479,10 +487,13 @@ public class ItemboardDocument implements SVGDocumentLoaderListener
               File itemImage = new File(selected.getImage());
               LOGGER.info("creating item element: " + itemImage.getName() + " at " + position);
               Element el = createItemElement(position, itemImage);
-              itemboardWindow.addNewElement(el, true);
+              if (el != null)
+              {
+                itemboardWindow.addNewElement(el, true);
+              }
 
               // Display text
-              int width = Integer.parseInt(el.getAttribute("width"));
+              int width = Integer.parseInt((el == null) ? "50" : el.getAttribute("width"));
               position.setLocation(position.getX() + width + ITEM_IMAGE_TEXT_SPACE, position.getY());
 
               ArrayList<String> lines = ItemboardUtils.formatWithTextWith(selected.getContent(), ITEM_TEXT_LINE_LENGTH);
@@ -550,35 +561,45 @@ public class ItemboardDocument implements SVGDocumentLoaderListener
     String base64String = "";
     String imgWidth = "50";
     String imgHeight = "50";
+
+    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    BufferedImage image = null;
     try
     {
-      ByteArrayOutputStream baos = new ByteArrayOutputStream();
-      BufferedImage image = ImageIO.read(itemImage);
+      image = ImageIO.read(itemImage);
       ImageIO.write(image, type, baos);
       baos.flush();
 
       base64String = DatatypeConverter.printBase64Binary(baos.toByteArray());
       baos.close();
-
-      // scale image's longer size to max size but only if image is bigger (do not enlarge)
-      Image imageForSize = image;
-      if (image.getWidth() >= image.getHeight() && image.getWidth() > IMAGE_LONGER_SIDE_SIZE)
-      {
-        imageForSize = image.getScaledInstance(IMAGE_LONGER_SIDE_SIZE, -1, Image.SCALE_DEFAULT);
-      }
-      else if (image.getHeight() > image.getWidth() && image.getHeight() > IMAGE_LONGER_SIDE_SIZE)
-      {
-        imageForSize = image.getScaledInstance(-1, IMAGE_LONGER_SIDE_SIZE, Image.SCALE_DEFAULT);
-      }
-
-      imgWidth = String.valueOf(imageForSize.getWidth(null));
-      imgHeight = String.valueOf(imageForSize.getHeight(null));
+    }
+    catch (javax.imageio.IIOException ex)
+    {
+      Logger.getLogger(ItemboardDocument.class.getName()).log(Level.SEVERE, null, ex);
     }
     catch (IOException ex)
     {
-      Logger.getLogger(ItemboardDocument.class
-        .getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(ItemboardDocument.class.getName()).log(Level.SEVERE, null, ex);
     }
+
+    if (image == null || base64String.equals(""))
+    {
+      return null;
+    }
+
+    // scale image's longer size to max size but only if image is bigger (do not enlarge)
+    Image imageForSize = image;
+    if (image.getWidth() >= image.getHeight() && image.getWidth() > IMAGE_LONGER_SIDE_SIZE)
+    {
+      imageForSize = image.getScaledInstance(IMAGE_LONGER_SIDE_SIZE, -1, Image.SCALE_DEFAULT);
+    }
+    else if (image.getHeight() > image.getWidth() && image.getHeight() > IMAGE_LONGER_SIDE_SIZE)
+    {
+      imageForSize = image.getScaledInstance(-1, IMAGE_LONGER_SIDE_SIZE, Image.SCALE_DEFAULT);
+    }
+
+    imgWidth = String.valueOf(imageForSize.getWidth(null));
+    imgHeight = String.valueOf(imageForSize.getHeight(null));
 
     Element imageElement = svgDocument.createElementNS(ItemboardUtils.svgNS, "image");
     imageElement.setAttributeNS(null, "x", Integer.valueOf(end.x).toString());

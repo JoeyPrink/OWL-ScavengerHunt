@@ -11,6 +11,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -24,6 +25,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.UnmarshalException;
 import javax.xml.bind.Unmarshaller;
 import org.jdesktop.wonderland.client.ClientContext;
 import org.jdesktop.wonderland.client.cell.Cell;
@@ -35,9 +37,9 @@ import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.modules.item.client.Item;
 import org.jdesktop.wonderland.modules.item.client.ItemComponent;
 import org.jdesktop.wonderland.modules.item.client.ItemUtils;
-import org.jdesktop.wonderland.modules.item.client.ScavengerHuntStudent;
 import org.jdesktop.wonderland.modules.item.client.StudentManager;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 
 /**
  * Manages list of all items and creates Panel to display them.
@@ -53,14 +55,19 @@ public class InventoryManager
 {
 
   private final ItemPanel itemPanel;
-  private ArrayList<Item> itemEntryList;
-  private ArrayList<ItemComponent> itemEntryListAll;
+  private ArrayList<Item> userItemEntryList;
+  private ArrayList<ItemComponent> serverItemEntryList;
+  private HashMap<String, ScavengerHuntStudent> students;
+
+  StudentManager studentManager;
 
   DefaultListModel<ItemComponent> dlm;
   ItemListCellRenderer cellRenderer;
 
   public InventoryManager()
   {
+    studentManager = StudentManager.getInstance();
+
     itemPanel = new ItemPanel();
 
     Canvas canvas = JmeClientMain.getFrame().getCanvas();
@@ -70,7 +77,7 @@ public class InventoryManager
     itemPanel.setBorder(null);
 
     dlm = new DefaultListModel<ItemComponent>();
-    cellRenderer = new ItemListCellRenderer(itemEntryList);
+    cellRenderer = new ItemListCellRenderer(userItemEntryList, students);
 
     itemPanel.getList().setModel(dlm);
     itemPanel.getList().setCellRenderer(cellRenderer);
@@ -102,11 +109,157 @@ public class InventoryManager
 
     });
 
-    itemEntryList = new ArrayList<Item>();
-    itemEntryListAll = new ArrayList<ItemComponent>();
+    userItemEntryList = new ArrayList<Item>();
+    serverItemEntryList = new ArrayList<ItemComponent>();
+    students = new HashMap<String, ScavengerHuntStudent>();
 
     updateItemList();
     updateItemContent();
+  }
+
+  public void load()
+  {
+    loadUserItems();
+    loadAllItems();
+    loadStudents();
+
+    updateItemList();
+    updateItemContent();
+  }
+
+  private void getFiles(File folder, ArrayList<File> files)
+  {
+    for (File fileEntry : folder.listFiles())
+    {
+      if (fileEntry.isDirectory())
+      {
+        getFiles(fileEntry, files);
+      }
+      else
+      {
+        files.add(fileEntry);
+      }
+    }
+  }
+
+  private void loadUserItems()
+  {
+    userItemEntryList = new ArrayList<Item>();
+
+    try
+    {
+      WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+      String userName = session.getUserID().getUsername();
+
+      File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
+
+      ArrayList<File> files = new ArrayList<File>();
+      getFiles(folder, files);
+
+      JAXBContext context = JAXBContext.newInstance(Item.class);
+      Unmarshaller marshal = context.createUnmarshaller();
+
+      for (File file : files)
+      {
+        String filePath = file.getAbsolutePath();
+        if (filePath.endsWith(".xml"))
+        {
+          Item unmarshalled = (Item) marshal.unmarshal(new FileReader(filePath));
+//          JOptionPane.showMessageDialog(null, "user item: " + filePath + "\n" + unmarshalled.getTitle());
+
+          // Backslash because it is local file
+          String fileName = filePath.substring(filePath.lastIndexOf("\\") + 1);
+
+          // Cut off extension
+          int index = fileName.lastIndexOf(".");
+          fileName = fileName.substring(0, index);
+
+          File imgFile = searchImageFile(files, fileName);
+          unmarshalled.setImage((imgFile == null) ? "" : imgFile.getAbsolutePath());
+
+          userItemEntryList.add(unmarshalled);
+        }
+      }
+    }
+    catch (UnmarshalException e)
+    {
+      Logger.getLogger(InventoryManager.class.getName()).log(Level.SEVERE, null, e);
+    }
+    catch (JAXBException e)
+    {
+      Logger.getLogger(InventoryManager.class.getName()).log(Level.SEVERE, null, e);
+    }
+    catch (FileNotFoundException e)
+    {
+      Logger.getLogger(InventoryManager.class.getName()).log(Level.SEVERE, null, e);
+    }
+  }
+
+  private File searchImageFile(ArrayList<File> files, String search)
+  {
+    for (File file : files)
+    {
+      String filePath = file.getAbsolutePath();
+      if (!filePath.endsWith(".xml") && file.getName().startsWith(search))
+      {
+        return file;
+      }
+    }
+
+    return null;
+  }
+
+  private void loadAllItems()
+  {
+    serverItemEntryList = new ArrayList<ItemComponent>();
+
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+
+    // Fetch the client-side Cell cache
+    CellCache cache = ClientContext.getCellCache(session);
+    if (cache == null)
+    {
+      Logger.getLogger(InventoryManager.class.getName())
+        .log(Level.WARNING, "Unable to find Cell cache for session {0}", session);
+      return;
+    }
+
+    // Loop through all of the root cells and add into the world
+    Collection<Cell> rootCells = cache.getRootCells();
+    for (Cell rootCell : rootCells)
+    {
+      createListOfAllObjectsItem(rootCell);
+    }
+  }
+
+  private void createListOfAllObjectsItem(Cell cell)
+  {
+    // As a special case, if the Cell is an AvatarCell, then simply ignore
+    // and return, since Avatar Cells are returned by the Cell cache.
+    if (cell instanceof AvatarCell)
+    {
+      return;
+    }
+
+    ItemComponent comp = cell.getComponent(ItemComponent.class);
+    if (comp != null)
+    {
+      serverItemEntryList.add(comp);
+//      JOptionPane.showMessageDialog(null, "server item:" + comp.getTitle());
+    }
+
+    // Recursively iterate through all of the Cell's children
+    List<Cell> children = cell.getChildren();
+    for (Cell child : children)
+    {
+      createListOfAllObjectsItem(child);
+    }
+  }
+
+  private void loadStudents()
+  {
+    studentManager.loadStudents();
+    students = studentManager.getStudents();
   }
 
   private void removeSelectedItem()
@@ -132,229 +285,15 @@ public class InventoryManager
     }
   }
 
-  private boolean removeOwnership(ItemComponent returnItem)
-  {
-    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
-    String userName = session.getUserID().getUsername();
-
-    if (returnItem.removeOwner(userName))
-    {
-      JOptionPane.showMessageDialog(null, "Item successfully returned.", "Success", JOptionPane.INFORMATION_MESSAGE);
-      return true;
-    }
-    else
-    {
-      JOptionPane.showMessageDialog(null, "Error: You cannot return this item "
-        + "because you do not own it.", "Error", JOptionPane.ERROR_MESSAGE);
-      return false;
-    }
-  }
-
-  private void removeItemFromUserDirectory(ItemComponent returnItem)
-  {
-    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
-    String userName = session.getUserID().getUsername();
-    File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
-
-    String pathToXMLFile = returnItem.getPathToXMLFile();
-
-    String fileName = ItemUtils.getFileNameFromPath(pathToXMLFile);
-
-    for (File childFile : folder.listFiles())
-    {
-      String childFileName = childFile.getName();
-      String childFileNamePlain = childFileName.substring(0, childFileName.lastIndexOf("."));
-
-      String searchFileNamePlain = fileName.substring(0, fileName.lastIndexOf("."));
-
-      if (childFile.isFile() && childFileNamePlain.equals(searchFileNamePlain))
-      {
-        childFile.delete();
-      }
-    }
-  }
-
-  private void removeItemFromList(ItemComponent removeItem)
-  {
-    int removeIndex = -1;
-
-    int index = 0;
-    for (Item item : itemEntryList)
-    {
-      if (item.getTitle().equals(removeItem.getTitle())
-        && item.getContent().equals(removeItem.getContent()))
-      {
-        removeIndex = index;
-      }
-
-      index++;
-    }
-
-    if (removeIndex > -1 && removeIndex < itemEntryList.size())
-    {
-      itemEntryList.remove(removeIndex);
-    }
-  }
-
-  private void createListOfAllObjectsItem(Cell cell)
-  {
-    // As a special case, if the Cell is an AvatarCell, then simply ignore
-    // and return, since Avatar Cells are returned by the Cell cache.
-    if (cell instanceof AvatarCell)
-    {
-      return;
-    }
-
-    ItemComponent comp = cell.getComponent(ItemComponent.class);
-    if (comp != null)
-    {
-      itemEntryListAll.add(comp);
-    }
-
-    // Recursively iterate through all of the Cell's children
-    List<Cell> children = cell.getChildren();
-    for (Cell child : children)
-    {
-      createListOfAllObjectsItem(child);
-    }
-  }
-
-  private void loadAllItems()
-  {
-    itemEntryListAll = new ArrayList<ItemComponent>();
-
-    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
-
-    // Fetch the client-side Cell cache
-    CellCache cache = ClientContext.getCellCache(session);
-    if (cache == null)
-    {
-      Logger.getLogger(InventoryManager.class.getName())
-        .log(Level.WARNING, "Unable to find Cell cache for session {0}", session);
-      return;
-    }
-
-//    itemPanel.getItemLabel().setText("<html>");
-    // Loop through all of the root cells and add into the world
-    Collection<Cell> rootCells = cache.getRootCells();
-    for (Cell rootCell : rootCells)
-    {
-      createListOfAllObjectsItem(rootCell);
-    }
-
-//    itemPanel.getItemLabel().setText(itemPanel.getItemLabel().getText() + "</html>");
-//    itemPanel.getItemLabel().repaint();
-  }
-
-  public void loadItems()
-  {
-    loadUserItems(); // has to be done before loadAllItems(),
-    // because loadAllItems() uses itemEntryList
-    loadAllItems();
-
-    updateItemList();
-    updateItemContent();
-  }
-
-  private void getFiles(File folder, ArrayList<File> files)
-  {
-    for (File fileEntry : folder.listFiles())
-    {
-      if (fileEntry.isDirectory())
-      {
-        getFiles(fileEntry, files);
-      }
-      else
-      {
-        files.add(fileEntry);
-      }
-    }
-  }
-
-  private void loadUserItems()
-  {
-    itemEntryList = new ArrayList<Item>();
-
-    try
-    {
-      WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
-      String userName = session.getUserID().getUsername();
-
-      File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
-
-      ArrayList<File> files = new ArrayList<File>();
-      getFiles(folder, files);
-
-      JAXBContext context = JAXBContext.newInstance(Item.class);
-      Unmarshaller marshal = context.createUnmarshaller();
-
-      for (File file : files)
-      {
-        String filePath = file.getAbsolutePath();
-        if (filePath.endsWith(".xml"))
-        {
-          Item unmarshalled = (Item) marshal.unmarshal(new FileReader(filePath));
-
-          // Backslash because it is local file
-          String fileName = filePath.substring(filePath.lastIndexOf("\\") + 1);
-
-          // Cut off extension
-          int index = fileName.lastIndexOf(".");
-          fileName = fileName.substring(0, index);
-
-          //System.out.println("Searching image file " + fileName);
-          File imgFile = searchImageFile(files, fileName);
-          if (imgFile != null)
-          {
-            unmarshalled.setImage(imgFile.getAbsolutePath());
-          }
-          else
-          {
-            unmarshalled.setImage("no image");
-          }
-
-          itemEntryList.add(unmarshalled);
-        }
-      }
-    }
-    catch (JAXBException e)
-    {
-      Logger.getLogger(InventoryManager.class.getName()).log(Level.SEVERE, null, e);
-    }
-    catch (FileNotFoundException e)
-    {
-      Logger.getLogger(InventoryManager.class.getName()).log(Level.SEVERE, null, e);
-    }
-  }
-
-  private File searchImageFile(ArrayList<File> files, String search)
-  {
-    for (File file : files)
-    {
-      String filePath = file.getAbsolutePath();
-      //System.out.println("file: " + filePath);
-      if (!filePath.endsWith(".xml") && file.getName().startsWith(search))
-      {
-        return file;
-      }
-    }
-
-    return null;
-  }
-
-  public JPanel getItemPanel()
-  {
-    return itemPanel;
-  }
-
   private void updateItemList()
   {
     String[] list;
 
     dlm.clear();
-    cellRenderer.setItemEntryList(itemEntryList);
+    cellRenderer.setItemEntryList(userItemEntryList);
+    cellRenderer.setStudents(students);
 
-    if (itemEntryListAll == null || itemEntryListAll.isEmpty())
+    if (serverItemEntryList == null || serverItemEntryList.isEmpty())
     {
       list = new String[1];
       list[0] = "Empty";
@@ -362,9 +301,9 @@ public class InventoryManager
     }
     else
     {
-      list = new String[itemEntryListAll.size()];
+      list = new String[serverItemEntryList.size()];
       int i = 0;
-      for (ItemComponent comp : itemEntryListAll)
+      for (ItemComponent comp : serverItemEntryList)
       {
         dlm.addElement(comp);
         list[i] = comp.getTitle();
@@ -375,7 +314,7 @@ public class InventoryManager
 
   private void updateItemContent()
   {
-    if (itemEntryListAll == null || itemEntryListAll.isEmpty())
+    if (serverItemEntryList == null || serverItemEntryList.isEmpty())
     {
       itemPanel.getTextPane().setText("");
       itemPanel.getTitleLabel().setText("");
@@ -392,13 +331,14 @@ public class InventoryManager
     }
 
     // Does the user already have this item?
-    ItemComponent comp = itemEntryListAll.get(selected);
+    ItemComponent comp = serverItemEntryList.get(selected);
     Item entry = null;
-    for (Item item : itemEntryList)
+    for (Item item : userItemEntryList)
     {
-      if (item.getTitle().equals(comp.getTitle())
-        && item.getContent().equals(comp.getContent()))
+//      JOptionPane.showMessageDialog(null, "compare with user item: " + item.getTitle());
+      if (item.getTitle().equals(comp.getTitle()) /*&& item.getContent().equals(comp.getContent())*/)
       {
+//        JOptionPane.showMessageDialog(null, "found!");
         entry = item;
       }
     }
@@ -407,16 +347,20 @@ public class InventoryManager
     {
       itemPanel.getReturnButton().setEnabled(true);
 
-      String content = entry.getContent();
+      String content = comp.getDescription();
       content = content.replaceAll("&#xD;", "\n");
       itemPanel.getTextPane().setContentType("text/html");
       itemPanel.getTextPane().setEditable(false);
       itemPanel.getTextPane().setText(content);
       itemPanel.getTitleLabel().setText(entry.getTitle());
-      //itemPanel.getImageLabel().setText(entry.getImage());
-      ImageIcon ico = new ImageIcon(entry.getImage());
-      Image ima = ico.getImage().getScaledInstance(-1, 56, Image.SCALE_DEFAULT);
-      itemPanel.getImageLabel().setIcon(new ImageIcon(ima));
+
+      String imgPath = entry.getImage();
+      if (!imgPath.equals(""))
+      {
+        ImageIcon ico = new ImageIcon(entry.getImage());
+        Image ima = ico.getImage().getScaledInstance(-1, 56, Image.SCALE_DEFAULT);
+        itemPanel.getImageLabel().setIcon(new ImageIcon(ima));
+      }
     }
     else  // No, he doesn't
     {
@@ -427,7 +371,7 @@ public class InventoryManager
       // Is the user able to pick up this item?
       WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
       String userName = session.getUserID().getUsername();
-      ScavengerHuntStudent me = StudentManager.loadStudentFromFile(userName);
+      ScavengerHuntStudent me = studentManager.loadStudentFromFile(userName);
       boolean canPickup = false;
       if (me != null)
       {
@@ -501,7 +445,7 @@ public class InventoryManager
         else  // No, nobody owns this item yet
         {
           // Would someone be able to pick it up?
-          ArrayList<ScavengerHuntStudent> students = ItemUtils.getStudentsWithAbility(Arrays.asList(abilities));
+          ArrayList<ScavengerHuntStudent> students = studentManager.getStudentsWithAbility(Arrays.asList(abilities));
           int numStudents = students.size();
 
           if (numStudents > 0)  // Yes, there is someone who can pick it up
@@ -525,8 +469,73 @@ public class InventoryManager
       }
 
       itemPanel.getTitleLabel().setText("");
-      //itemPanel.getImageLabel().setText("");
       itemPanel.getImageLabel().setIcon(null);
+    }
+  }
+
+  private boolean removeOwnership(ItemComponent returnItem)
+  {
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
+
+    if (returnItem.removeOwner(userName))
+    {
+      JOptionPane.showMessageDialog(null, "Item successfully returned.", "Success", JOptionPane.INFORMATION_MESSAGE);
+      return true;
+    }
+    else
+    {
+      JOptionPane.showMessageDialog(null, "Error: You cannot return this item "
+        + "because you do not own it.", "Error", JOptionPane.ERROR_MESSAGE);
+      return false;
+    }
+  }
+
+  public JPanel getItemPanel()
+  {
+    return itemPanel;
+  }
+
+  private void removeItemFromUserDirectory(ItemComponent returnItem)
+  {
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
+    File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
+
+    String fileName = ItemUtils.makeFileName(returnItem.getTitle());
+
+    for (File childFile : folder.listFiles())
+    {
+      String childFileName = childFile.getName();
+      String childFileNamePlain = childFileName.substring(0, childFileName.lastIndexOf("."));
+
+      String searchFileNamePlain = fileName/*.substring(0, fileName.lastIndexOf("."))*/;
+
+      if (childFile.isFile() && childFileNamePlain.equals(searchFileNamePlain))
+      {
+        childFile.delete();
+      }
+    }
+  }
+
+  private void removeItemFromList(ItemComponent removeItem)
+  {
+    int removeIndex = -1;
+
+    int index = 0;
+    for (Item item : userItemEntryList)
+    {
+      if (item.getTitle().equals(removeItem.getTitle()) /*&& item.getContent().equals(removeItem.getContent())*/)
+      {
+        removeIndex = index;
+      }
+
+      index++;
+    }
+
+    if (removeIndex > -1 && removeIndex < userItemEntryList.size())
+    {
+      userItemEntryList.remove(removeIndex);
     }
   }
 }

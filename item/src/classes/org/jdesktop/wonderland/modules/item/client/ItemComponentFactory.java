@@ -23,8 +23,7 @@ public class ItemComponentFactory implements CellComponentFactorySPI
   @Override
   public String getDescription()
   {
-    return "Turns this object into an 'Item', which means someone can "
-      + "store a text connected with this object in his/her inventory.";
+    return "Store an information text connected with this object.";
   }
 
   @Override

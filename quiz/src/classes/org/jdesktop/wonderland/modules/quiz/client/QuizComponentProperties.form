@@ -21,6 +21,12 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Component id="lbQuiz" max="32767" attributes="0"/>
                   <Component id="lbTeleport" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="btLoadQuiz" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="btSaveQuiz" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                  </Group>
               </Group>
           </Group>
       </Group>
@@ -31,8 +37,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Component id="lbQuiz" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
-              <Component id="lbTeleport" min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="btLoadQuiz" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="btSaveQuiz" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
               <EmptySpace max="32767" attributes="0"/>
+              <Component id="lbTeleport" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
           </Group>
       </Group>
     </DimensionLayout>
@@ -56,10 +67,10 @@
                       <Component id="jPanel3" max="32767" attributes="0"/>
                       <Group type="102" attributes="0">
                           <Component id="jScrollPane1" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
+                          <EmptySpace type="unrelated" max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="btAdd" alignment="1" min="-2" max="-2" attributes="0"/>
-                              <Component id="btRemove" alignment="1" min="-2" max="-2" attributes="0"/>
+                              <Component id="btAdd" min="-2" max="-2" attributes="0"/>
+                              <Component id="btRemove" alignment="0" min="-2" max="-2" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -70,17 +81,18 @@
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
               <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
                   <Group type="103" groupAlignment="0" attributes="0">
                       <Group type="102" attributes="0">
                           <Component id="btAdd" min="-2" max="-2" attributes="0"/>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="btRemove" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <Component id="jScrollPane1" min="-2" pref="110" max="-2" attributes="0"/>
+                      <Component id="jScrollPane1" min="-2" pref="100" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="jPanel3" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="32767" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -124,6 +136,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="jButton2"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btRemoveActionPerformed"/>
+          </Events>
         </Component>
         <Container class="javax.swing.JPanel" name="jPanel3">
           <Properties>
@@ -137,7 +152,7 @@
           <Layout>
             <DimensionLayout dim="0">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jPanel4" max="32767" attributes="0"/>
@@ -155,9 +170,14 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="cbQuestionType" max="32767" attributes="0"/>
                                   </Group>
-                                  <Component id="tfQuestionText" max="32767" attributes="0"/>
+                                  <Group type="102" attributes="0">
+                                      <Component id="tfQuestionText" max="32767" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="btApplyAnswers" min="-2" max="-2" attributes="0"/>
+                                  </Group>
                               </Group>
                           </Group>
+                          <Component id="lbSaved" alignment="0" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -166,7 +186,7 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tfQuestionTitle" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -177,10 +197,12 @@
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="tfQuestionText" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btApplyAnswers" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jPanel4" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="lbSaved" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -231,7 +253,7 @@
                 <Property name="rows" type="int" value="3"/>
               </Layout>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jLabel7">
+                <Component class="javax.swing.JLabel" name="lbAnswer1">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Answer 1: "/>
                   </Properties>
@@ -240,16 +262,7 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="cbAnswer1">
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel12">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Answer 4: "/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JTextField" name="tfAnswer4">
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="cbAnswer4">
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel9">
+                <Component class="javax.swing.JLabel" name="lbAnswer2">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Answer 2: "/>
                   </Properties>
@@ -258,16 +271,7 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="cbAnswer2">
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel11">
-                  <Properties>
-                    <Property name="text" type="java.lang.String" value="Answer 5: "/>
-                  </Properties>
-                </Component>
-                <Component class="javax.swing.JTextField" name="tfAnswer5">
-                </Component>
-                <Component class="javax.swing.JCheckBox" name="cbAnswer5">
-                </Component>
-                <Component class="javax.swing.JLabel" name="jLabel10">
+                <Component class="javax.swing.JLabel" name="lbAnswer3">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Answer 3: "/>
                   </Properties>
@@ -276,7 +280,25 @@
                 </Component>
                 <Component class="javax.swing.JCheckBox" name="cbAnswer3">
                 </Component>
-                <Component class="javax.swing.JLabel" name="jLabel13">
+                <Component class="javax.swing.JLabel" name="lbAnswer4">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Answer 4: "/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="tfAnswer4">
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="cbAnswer4">
+                </Component>
+                <Component class="javax.swing.JLabel" name="lbAnswer5">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Answer 5: "/>
+                  </Properties>
+                </Component>
+                <Component class="javax.swing.JTextField" name="tfAnswer5">
+                </Component>
+                <Component class="javax.swing.JCheckBox" name="cbAnswer5">
+                </Component>
+                <Component class="javax.swing.JLabel" name="lbAnswer6">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Answer 6: "/>
                   </Properties>
@@ -287,6 +309,19 @@
                 </Component>
               </SubComponents>
             </Container>
+            <Component class="javax.swing.JButton" name="btApplyAnswers">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="v/"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btApplyAnswersActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JLabel" name="lbSaved">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Saved!"/>
+              </Properties>
+            </Component>
           </SubComponents>
         </Container>
       </SubComponents>
@@ -305,7 +340,7 @@
         <Property name="rows" type="int" value="2"/>
       </Layout>
       <SubComponents>
-        <Component class="javax.swing.JLabel" name="jLabel2">
+        <Component class="javax.swing.JLabel" name="lbX">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="x: "/>
@@ -313,7 +348,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="tfX">
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel3">
+        <Component class="javax.swing.JLabel" name="lbY">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="y: "/>
@@ -321,7 +356,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="tfY">
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel4">
+        <Component class="javax.swing.JLabel" name="lbZ">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="z: "/>
@@ -329,7 +364,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="tfZ">
         </Component>
-        <Component class="javax.swing.JLabel" name="jLabel5">
+        <Component class="javax.swing.JLabel" name="lbLook">
           <Properties>
             <Property name="horizontalAlignment" type="int" value="4"/>
             <Property name="text" type="java.lang.String" value="look: "/>
@@ -339,5 +374,21 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JButton" name="btLoadQuiz">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Load Quiz"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btLoadQuizActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="btSaveQuiz">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Save Quiz"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btSaveQuizActionPerformed"/>
+      </Events>
+    </Component>
   </SubComponents>
 </Form>

@@ -64,6 +64,7 @@ public class QuizComponentMO extends CellComponentMO
   public void setServerState(CellComponentServerState state)
   {
     super.setServerState(state);
+
     quiz = ((QuizComponentServerState) state).getQuiz();
     location = ((QuizComponentServerState) state).getLocation();
     look = ((QuizComponentServerState) state).getLook();

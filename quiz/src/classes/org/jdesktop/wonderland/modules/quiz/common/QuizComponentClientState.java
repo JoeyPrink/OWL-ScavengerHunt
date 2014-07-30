@@ -6,7 +6,11 @@ package org.jdesktop.wonderland.modules.quiz.common;
 
 import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jdesktop.wonderland.common.cell.state.CellComponentClientState;
+import org.jdesktop.wonderland.common.utils.jaxb.QuaternionAdapter;
+import org.jdesktop.wonderland.common.utils.jaxb.Vector3fAdapter;
 
 /**
  *
@@ -30,6 +34,7 @@ public class QuizComponentClientState extends CellComponentClientState
     this.look = look;
   }
 
+  @XmlElement
   public Quiz getQuiz()
   {
     return quiz;
@@ -40,6 +45,8 @@ public class QuizComponentClientState extends CellComponentClientState
     this.quiz = quiz;
   }
 
+  @XmlElement
+  @XmlJavaTypeAdapter(Vector3fAdapter.class)
   public Vector3f getLocation()
   {
     return location;
@@ -50,6 +57,8 @@ public class QuizComponentClientState extends CellComponentClientState
     this.location = location;
   }
 
+  @XmlElement
+  @XmlJavaTypeAdapter(QuaternionAdapter.class)
   public Quaternion getLook()
   {
     return look;

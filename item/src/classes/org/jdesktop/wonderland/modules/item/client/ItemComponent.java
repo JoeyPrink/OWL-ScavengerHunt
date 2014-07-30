@@ -5,20 +5,17 @@ import com.jme.math.Vector3f;
 import com.jme.scene.Node;
 import com.jme.scene.Spatial.LightCombineMode;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import javax.xml.bind.Marshaller;
 import org.jdesktop.mtgame.Entity;
 import org.jdesktop.mtgame.NewFrameCondition;
 import org.jdesktop.mtgame.ProcessorArmingCollection;
@@ -55,6 +52,8 @@ import org.jdesktop.wonderland.modules.item.common.Abilities;
 import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 import org.jdesktop.wonderland.modules.item.common.ItemComponentClientState;
 import org.jdesktop.wonderland.modules.item.common.ItemOwnerChangeMessage;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
+import org.jdesktop.wonderland.modules.item.common.UserAbilityChangeMessage;
 
 /**
  * Adds a context menu item to the object with which a user (with the
@@ -62,18 +61,21 @@ import org.jdesktop.wonderland.modules.item.common.ItemOwnerChangeMessage;
  *
  * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
  */
-public class ItemComponent extends CellComponent implements ContextMenuActionListener
+public class ItemComponent extends CellComponent implements ContextMenuActionListener, UserObserver
 {
 
   @UsesCellComponent
   private ContextMenuComponent contextMenu;
   private final ContextMenuFactorySPI menuFactory;
   private String menuItemText = "Pick Up";
-  private String xmlPath;
+  private String title;
+  private String description;
   private String imgPath;
-  private boolean once;
   private Ability[] abilities;
+  private boolean once;
   private String[] owners;
+
+  private StudentManager studentManager;
 
   private final String configFileName = "scavenger_hunt.ini";
   private final String roleLineStartsWith = "role";
@@ -88,12 +90,9 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
   public ItemComponent(Cell cell)
   {
     super(cell);
-//    owners = new String[]
-//    {
-//      "jon"
-//    };
-//    ItemOwnerChangeMessage msg = new ItemOwnerChangeMessage(cell.getCellID(), owners);
-//    cell.sendCellMessage(msg);
+
+    studentManager = StudentManager.getInstance();
+    studentManager.addObserver(this);
 
     final ContextMenuItem item = new SimpleContextMenuItem(menuItemText, this);
     menuFactory = new ContextMenuFactorySPI()
@@ -110,76 +109,6 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
   }
 
   @Override
-  protected void setStatus(CellStatus status, boolean increasing)
-  {
-//    System.out.println("Cell status: " + status);
-
-    boolean just_removed = false;
-
-    if (status == CellStatus.ACTIVE && increasing)
-    {
-      contextMenu.addContextMenuFactory(menuFactory);
-      displayItemEffect(true);
-
-      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
-      channel.addMessageReceiver(ItemOwnerChangeMessage.class, new ItemComponentMessageReceiver());
-    }
-    else if (status == CellStatus.INACTIVE && !increasing)
-    {
-      contextMenu.removeContextMenuFactory(menuFactory);
-      displayItemEffect(false);
-
-      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
-      channel.removeMessageReceiver(ItemOwnerChangeMessage.class);
-
-      just_removed = true;
-    }
-
-    if ((status == CellStatus.RENDERING || status == CellStatus.VISIBLE) && increasing && !just_removed)
-    {
-      displayItemEffect(true);
-    }
-
-    super.setStatus(status, increasing);
-  }
-
-  class ItemComponentMessageReceiver implements ComponentMessageReceiver
-  {
-
-    @Override
-    public void messageReceived(CellMessage message)
-    {
-      ItemOwnerChangeMessage iocm = (ItemOwnerChangeMessage) message;
-//      owners = iocm.getOwners();
-      if (!iocm.getSenderID().equals(cell.getCellCache().getSession().getID()))
-      {
-        owners = iocm.getOwners();
-      }
-
-      System.out.println("Received new owners for item " + cell.getName());
-      for (String owner : owners)
-      {
-        System.out.println("  " + owner);
-      }
-
-      displayItemEffect(!once || owners.length < 1);
-    }
-  }
-
-  @Override
-  public void setClientState(CellComponentClientState clientState)
-  {
-    super.setClientState(clientState);
-    xmlPath = ((ItemComponentClientState) clientState).getXmlPath();
-    imgPath = ((ItemComponentClientState) clientState).getImgPath();
-    once = ((ItemComponentClientState) clientState).getOnce();
-    abilities = ((ItemComponentClientState) clientState).getAbilities();
-    owners = ((ItemComponentClientState) clientState).getOwners();
-
-    displayItemEffect(true);
-  }
-
-  @Override
   public void actionPerformed(ContextMenuItemEvent event)
   {
     String clickedLabel = event.getContextMenuItem().getLabel();
@@ -187,7 +116,8 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     {
       WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
       String userName = session.getUserID().getUsername();
-      ScavengerHuntStudent student = StudentManager.loadStudentFromFile(userName);
+//      studentManager.loadStudents();
+      ScavengerHuntStudent student = studentManager.loadStudentFromFile(userName);
       if (student != null)
       {
         Ability userAbility = student.getAbility();
@@ -240,7 +170,6 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
         {
           boolean success = getItemFromServer();
 
-          //TODO: maybe remove this or replace JOptionPane with HUD?
           if (success)
           {
             boolean alreadyInList = false;
@@ -281,7 +210,7 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
             JOptionPane.showMessageDialog(null, "Item information could not be "
               + "picked up.",
               "Failure",
-              JOptionPane.WARNING_MESSAGE);
+              JOptionPane.ERROR_MESSAGE);
           }
         }
       }
@@ -290,70 +219,51 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
 
   private boolean getItemFromServer()
   {
-    boolean success = false;
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
 
+    String fileName = ItemUtils.makeFileName(title);
+    File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
+    File file = new File(folder.getAbsolutePath() + "/" + fileName + ".xml");
+
+    Item item = new Item(title, description);
+
+    boolean success = true;
     try
     {
-      WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
-      String userName = session.getUserID().getUsername();
+      JAXBContext context = JAXBContext.newInstance(Item.class);
+      Marshaller marshal = context.createMarshaller();
 
-      if (xmlPath.contains("wlcontent"))
+      // output pretty printed
+      marshal.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+      marshal.marshal(item, file);
+
+      if (imgPath.contains("wlcontent"))
       {
-        String fileName = get(xmlPath, userName + "/items", null);
-        if (imgPath.contains("wlcontent"))
-        {
-          // get image but save it with same name as description
-          // to mark these to belong together
-          get(imgPath, userName + "/items", fileName);
-          success = true;
-        }
+        String extension = ItemUtils.getExtension(imgPath);
+
+        folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + userName + "/items");
+        file = new File(folder.getAbsolutePath() + "/" + fileName + extension);
+
+        file.createNewFile();
+
+        OutputStream out = new FileOutputStream(file);
+        String userDir = ItemUtils.getUserDirFromPath(imgPath);
+//        JOptionPane.showMessageDialog(null, "userDir: " + userDir);
+        InputStream in = ItemUtils.openFileForReading(userDir,
+          ItemUtils.SUBDIRNAME_IMG,
+          ItemUtils.getFileNameFromPath(imgPath));
+        writeInToOut(in, out);
       }
     }
-    catch (IOException ex)
+    catch (Exception ex)
     {
-      System.out.println(ex.toString());
-      ex.printStackTrace();
-      Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE,
-        "Could not open file.");
+      Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE, null, ex);
+      success = false;
     }
 
     return success;
-  }
-
-  private String get(String filePath, String localFolder, String fileName) throws FileNotFoundException, IOException
-  {
-    File folder = ClientContext.getUserDirectory("/cache/wlcontent/users/" + localFolder);
-
-    String fileNameToReturn = fileName;
-    // If given file name is null, take own
-    if (fileName == null)
-    {
-      fileName = ItemUtils.getFileNameFromPath(filePath);
-
-      // Cut off extension for fileNameToReturn
-      int index = fileName.lastIndexOf(".");
-      fileNameToReturn = fileName.substring(0, index);
-    }
-    else // else take given and add own extension
-    {
-      String ownFileName = ItemUtils.getFileNameFromPath(filePath);
-      String ownExtension = ownFileName.substring(ownFileName.lastIndexOf("."));
-      fileName += ownExtension;
-    }
-
-    //Cell cell = CellCacheBasicImpl.getCurrentActiveCell();
-    //String fileName = cell.getName();
-    //String fileExtension = filePath.substring(filePath.lastIndexOf("."));
-    //fileName += fileExtension;
-    File newFile = new File(folder.getAbsolutePath() + "/" + fileName);
-
-    OutputStream out = new FileOutputStream(newFile);
-
-    InputStream in = openFile(filePath);
-
-    writeInToOut(in, out);
-
-    return fileNameToReturn;
   }
 
   private void writeInToOut(InputStream in, OutputStream out) throws IOException
@@ -370,18 +280,68 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     out.close();
   }
 
-  private InputStream openFile(String path) throws IOException
+  @Override
+  protected void setStatus(CellStatus status, boolean increasing)
   {
-    URL documentURL = AssetUtils.getAssetURL(path);
-    URLConnection conn = documentURL.openConnection();
-    conn.connect();
+    boolean just_removed = false;
 
-    return conn.getInputStream();
+    if (status == CellStatus.ACTIVE && increasing)
+    {
+      contextMenu.addContextMenuFactory(menuFactory);
+      displayItemEffect(!once || owners.length < 1);
+
+      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
+      channel.addMessageReceiver(ItemOwnerChangeMessage.class, new ItemComponentMessageReceiver());
+      channel.addMessageReceiver(UserAbilityChangeMessage.class, new ItemComponentMessageReceiver());
+    }
+    else if (status == CellStatus.INACTIVE && !increasing)
+    {
+      contextMenu.removeContextMenuFactory(menuFactory);
+      displayItemEffect(false);
+
+      ChannelComponent channel = cell.getComponent(ChannelComponent.class);
+      channel.removeMessageReceiver(ItemOwnerChangeMessage.class);
+      channel.removeMessageReceiver(UserAbilityChangeMessage.class);
+
+      just_removed = true;
+    }
+
+    if ((status == CellStatus.RENDERING || status == CellStatus.VISIBLE) && increasing && !just_removed)
+    {
+      displayItemEffect(!once || owners.length < 1);
+    }
+
+    super.setStatus(status, increasing);
   }
 
-  public String getPathToXMLFile()
+  @Override
+  public void setClientState(CellComponentClientState clientState
+  )
   {
-    return xmlPath;
+    super.setClientState(clientState);
+    title = ((ItemComponentClientState) clientState).getTitle();
+    description = ((ItemComponentClientState) clientState).getDescription();
+    imgPath = ((ItemComponentClientState) clientState).getImgPath();
+    abilities = ((ItemComponentClientState) clientState).getAbilities();
+    once = ((ItemComponentClientState) clientState).getOnce();
+
+    owners = ((ItemComponentClientState) clientState).getOwners();
+    displayItemEffect(!once || owners.length < 1);
+  }
+
+  public String getTitle()
+  {
+    return title;
+  }
+
+  public String getDescription()
+  {
+    return description;
+  }
+
+  public Ability[] getAbilities()
+  {
+    return abilities;
   }
 
   public boolean getOnce()
@@ -389,9 +349,9 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     return once;
   }
 
-  public Ability[] getAbilities()
+  public String[] getOwners()
   {
-    return abilities;
+    return owners;
   }
 
   public boolean removeOwner(String userName)
@@ -433,61 +393,57 @@ public class ItemComponent extends CellComponent implements ContextMenuActionLis
     return true;
   }
 
-  public String[] getOwners()
+  @Override
+  public void userAbilitesChanged(ScavengerHuntStudent user)
   {
-    return owners;
+    String[] userS = new String[2];
+    userS[0] = user.getUsername();
+    userS[1] = Abilities.getStringFromAbility(user.getAbility());
+
+    UserAbilityChangeMessage msg = new UserAbilityChangeMessage(cell.getCellID(), userS);
+    cell.sendCellMessage(msg);
   }
 
-  public String getTitle()
+  class ItemComponentMessageReceiver implements ComponentMessageReceiver
   {
-    String text;
-    try
+
+    @Override
+    public void messageReceived(CellMessage message)
     {
-      InputStream in = openFile(xmlPath);
+      if (message instanceof ItemOwnerChangeMessage)
+      {
+        ItemOwnerChangeMessage iocm = (ItemOwnerChangeMessage) message;
+        if (!iocm.getSenderID().equals(cell.getCellCache().getSession().getID()))
+        {
+          owners = iocm.getOwners();
+        }
 
-      JAXBContext context = JAXBContext.newInstance(Item.class);
-      Unmarshaller marshal = context.createUnmarshaller();
+        System.out.println("Received new owners for item " + cell.getName());
+        for (String owner : owners)
+        {
+          System.out.println("  " + owner);
+        }
 
-      Item unmarshalled = (Item) marshal.unmarshal(in);
-      text = unmarshalled.getTitle();
+        displayItemEffect(!once || owners.length < 1);
+      }
+      else if (message instanceof UserAbilityChangeMessage)
+      {
+        UserAbilityChangeMessage uacm = (UserAbilityChangeMessage) message;
+        if (!uacm.getSenderID().equals(cell.getCellCache().getSession().getID()))
+        {
+          String[] user = uacm.getUser();
+          if (user != null)
+          {
+            ScavengerHuntStudent scavengerHuntStudent = new ScavengerHuntStudent(user[0], Abilities.getAbilityFromString(user[1]));
+            studentManager.getStudents().put(user[0], scavengerHuntStudent);
+
+            System.out.println("Received new abilites for user "
+              + scavengerHuntStudent.getUsername() + ": "
+              + scavengerHuntStudent.getAbility());
+          }
+        }
+      }
     }
-    catch (IOException e)
-    {
-      text = "Sorry.";
-    }
-    catch (JAXBException ex)
-    {
-      Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE, null, ex);
-      text = "Error: wrong format.";
-    }
-
-    return text;
-  }
-
-  public String getContent()
-  {
-    String text;
-    try
-    {
-      InputStream in = openFile(xmlPath);
-
-      JAXBContext context = JAXBContext.newInstance(Item.class);
-      Unmarshaller marshal = context.createUnmarshaller();
-
-      Item unmarshalled = (Item) marshal.unmarshal(in);
-      text = unmarshalled.getContent();
-    }
-    catch (IOException e)
-    {
-      text = "Sorry, could not open xml description file.";
-    }
-    catch (JAXBException ex)
-    {
-      Logger.getLogger(ItemComponent.class.getName()).log(Level.SEVERE, null, ex);
-      text = "Xml description file does not have the right format.";
-    }
-
-    return text;
   }
 
   /**

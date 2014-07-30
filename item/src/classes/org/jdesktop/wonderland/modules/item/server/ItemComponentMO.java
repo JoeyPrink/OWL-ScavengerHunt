@@ -8,6 +8,7 @@ import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
 import org.jdesktop.wonderland.modules.item.common.ItemComponentClientState;
 import org.jdesktop.wonderland.modules.item.common.ItemComponentServerState;
 import org.jdesktop.wonderland.modules.item.common.ItemOwnerChangeMessage;
+import org.jdesktop.wonderland.modules.item.common.UserAbilityChangeMessage;
 import org.jdesktop.wonderland.server.cell.AbstractComponentMessageReceiver;
 import org.jdesktop.wonderland.server.cell.CellComponentMO;
 import org.jdesktop.wonderland.server.cell.CellMO;
@@ -22,11 +23,11 @@ import org.jdesktop.wonderland.server.comms.WonderlandClientSender;
 public class ItemComponentMO extends CellComponentMO
 {
 
-  private String xmlPath;
+  private String itemTitle;
+  private String itemDescription;
   private String imgPath;
-  private boolean once;
-
   private Ability[] abilities;
+  private boolean once;
 
   private String[] owners;
 
@@ -42,10 +43,11 @@ public class ItemComponentMO extends CellComponentMO
     {
       state = new ItemComponentClientState();
     }
-    ((ItemComponentClientState) state).setXmlPath(xmlPath);
+    ((ItemComponentClientState) state).setTitle(itemTitle);
+    ((ItemComponentClientState) state).setDescription(itemDescription);
     ((ItemComponentClientState) state).setImgPath(imgPath);
-    ((ItemComponentClientState) state).setOnce(once);
     ((ItemComponentClientState) state).setAbilities(abilities);
+    ((ItemComponentClientState) state).setOnce(once);
     ((ItemComponentClientState) state).setOwners(owners);
 
     return super.getClientState(state, clientID, capabilities);
@@ -58,10 +60,11 @@ public class ItemComponentMO extends CellComponentMO
     {
       state = new ItemComponentServerState();
     }
-    ((ItemComponentServerState) state).setXmlPath(xmlPath);
+    ((ItemComponentServerState) state).setTitle(itemTitle);
+    ((ItemComponentServerState) state).setDescription(itemDescription);
     ((ItemComponentServerState) state).setImgPath(imgPath);
-    ((ItemComponentServerState) state).setOnce(once);
     ((ItemComponentServerState) state).setAbilities(abilities);
+    ((ItemComponentServerState) state).setOnce(once);
     ((ItemComponentServerState) state).setOwners(owners);
 
     return super.getServerState(state);
@@ -71,10 +74,11 @@ public class ItemComponentMO extends CellComponentMO
   public void setServerState(CellComponentServerState state)
   {
     super.setServerState(state);
-    xmlPath = ((ItemComponentServerState) state).getXmlPath();
+    itemTitle = ((ItemComponentServerState) state).getTitle();
+    itemDescription = ((ItemComponentServerState) state).getDescription();
     imgPath = ((ItemComponentServerState) state).getImgPath();
-    once = ((ItemComponentServerState) state).getOnce();
     abilities = ((ItemComponentServerState) state).getAbilities();
+    once = ((ItemComponentServerState) state).getOnce();
     owners = ((ItemComponentServerState) state).getOwners();
   }
 
@@ -94,12 +98,13 @@ public class ItemComponentMO extends CellComponentMO
     {
       channel.addMessageReceiver(ItemOwnerChangeMessage.class,
         (ChannelComponentMO.ComponentMessageReceiver) new ItemOwnerMessageReceiver(cellRef.get()));
-//      System.out.println("Registered ItemOwnerMessageReceiver");
+      channel.addMessageReceiver(UserAbilityChangeMessage.class,
+        (ChannelComponentMO.ComponentMessageReceiver) new UserAbilityMessageReceiver(cellRef.get()));
     }
     else
     {
       channel.removeMessageReceiver(ItemOwnerChangeMessage.class);
-//      System.out.println("Removed ItemOwnerMessageReceiver");
+      channel.removeMessageReceiver(UserAbilityChangeMessage.class);
     }
   }
 
@@ -116,12 +121,28 @@ public class ItemComponentMO extends CellComponentMO
     {
       ItemComponentMO componentMO = (ItemComponentMO) getCell().getComponent(ItemComponentMO.class);
       ItemOwnerChangeMessage iocm = (ItemOwnerChangeMessage) message;
-      componentMO.owners = iocm.getOwners();
-//      System.out.println("Set owners in ItemComponentMO.");
 
-//      getCell().sendCellMessage(clientID, message);
+      componentMO.owners = iocm.getOwners();
+
       componentMO.cellRef.get().sendCellMessage(clientID, message);
-//      System.out.println("Sent message back to clients.");
+    }
+  }
+
+  private static class UserAbilityMessageReceiver extends AbstractComponentMessageReceiver
+  {
+
+    public UserAbilityMessageReceiver(CellMO cellMO)
+    {
+      super(cellMO);
+    }
+
+    @Override
+    public void messageReceived(WonderlandClientSender sender, WonderlandClientID clientID, CellMessage message)
+    {
+      ItemComponentMO componentMO = (ItemComponentMO) getCell().getComponent(ItemComponentMO.class);
+//      UserAbilityChangeMessage uacm = (UserAbilityChangeMessage) message;
+
+      componentMO.cellRef.get().sendCellMessage(clientID, message);
     }
   }
 }

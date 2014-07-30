@@ -5,6 +5,7 @@
  */
 package org.jdesktop.wonderland.modules.item.client;
 
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 import java.util.ArrayList;
 
 /**

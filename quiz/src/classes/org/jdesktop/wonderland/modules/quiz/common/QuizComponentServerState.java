@@ -8,8 +8,11 @@ import com.jme.math.Quaternion;
 import com.jme.math.Vector3f;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.jdesktop.wonderland.common.cell.state.CellComponentServerState;
 import org.jdesktop.wonderland.common.cell.state.annotation.ServerState;
+import org.jdesktop.wonderland.common.utils.jaxb.QuaternionAdapter;
+import org.jdesktop.wonderland.common.utils.jaxb.Vector3fAdapter;
 
 /**
  *
@@ -20,11 +23,8 @@ import org.jdesktop.wonderland.common.cell.state.annotation.ServerState;
 public class QuizComponentServerState extends CellComponentServerState
 {
 
-  @XmlElement(name = "quiz")
   private Quiz quiz;
-  @XmlElement(name = "location")
   private Vector3f location;
-  @XmlElement(name = "look")
   private Quaternion look;
 
   public QuizComponentServerState()
@@ -56,7 +56,7 @@ public class QuizComponentServerState extends CellComponentServerState
   }
 
   @XmlElement
-//  @XmlJavaTypeAdapter(Vector3fAdapter.class)
+  @XmlJavaTypeAdapter(Vector3fAdapter.class)
   public Vector3f getLocation()
   {
     return location;
@@ -68,7 +68,7 @@ public class QuizComponentServerState extends CellComponentServerState
   }
 
   @XmlElement
-//  @XmlJavaTypeAdapter(QuaternionAdapter.class)
+  @XmlJavaTypeAdapter(QuaternionAdapter.class)
   public Quaternion getLook()
   {
     return look;

@@ -7,11 +7,12 @@ package org.jdesktop.wonderland.modules.item.client;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
+import java.util.Map;
+import java.util.Set;
 import javax.swing.DefaultListModel;
 import javax.swing.JRadioButton;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 
 /**
  * JPanel with a List and RadioButtons to assign users one of four abilities for
@@ -60,7 +61,9 @@ public class StudentManagerPanel extends javax.swing.JPanel
     ltStudents.setModel(listModel);
 
     btApply.setText("Apply");
-    btReset.setText("Reset");
+    btRefresh.setText("Refresh");
+
+    lbSaved.setText(" ");
   }
 
   public void doWork(StudentManager studentManager)
@@ -71,19 +74,16 @@ public class StudentManagerPanel extends javax.swing.JPanel
 
   private void fillList()
   {
-//    System.out.println("fillList");
-
     int selIndex = ltStudents.getSelectedIndex();
 
     listModel.clear();
 
-    ArrayList<ScavengerHuntGroup> groups = studentManager.getGroups();
-    for (ScavengerHuntGroup group : groups)
+    Set<Map.Entry<String, ScavengerHuntStudent>> entrySet = studentManager.getStudents().entrySet();
+    for (Map.Entry<String, ScavengerHuntStudent> entry : entrySet)
     {
-      for (ScavengerHuntStudent student : group.getStudents())
-      {
-        listModel.addElement(student);
-      }
+      ScavengerHuntStudent student = entry.getValue();
+      ScavengerHuntStudent copy = new ScavengerHuntStudent(student.getUsername(), student.getAbility());
+      listModel.addElement(copy);
     }
 
     ltStudents.clearSelection();
@@ -127,14 +127,7 @@ public class StudentManagerPanel extends javax.swing.JPanel
     @Override
     public void actionPerformed(ActionEvent e)
     {
-      int selIndex = ltStudents.getSelectedIndex();
-      if (selIndex >= 0)
-      {
-        ScavengerHuntStudent selStudent = listModel.get(selIndex);
-//        System.out.println("Setting ability for student " + selStudent
-//          + ", new ability is " + getSelectedAbility());
-        selStudent.setAbility(getSelectedAbility());
-      }
+
     }
   }
 
@@ -157,7 +150,8 @@ public class StudentManagerPanel extends javax.swing.JPanel
     rbRole3 = new javax.swing.JRadioButton();
     rbRole4 = new javax.swing.JRadioButton();
     btApply = new javax.swing.JButton();
-    btReset = new javax.swing.JButton();
+    btRefresh = new javax.swing.JButton();
+    lbSaved = new javax.swing.JLabel();
 
     setPreferredSize(new java.awt.Dimension(490, 350));
 
@@ -198,7 +192,7 @@ public class StudentManagerPanel extends javax.swing.JPanel
           .addComponent(rbRole2)
           .addComponent(rbRole3)
           .addComponent(rbRole4))
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addContainerGap(49, Short.MAX_VALUE))
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -223,15 +217,17 @@ public class StudentManagerPanel extends javax.swing.JPanel
       }
     });
 
-    btReset.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
-    btReset.setText("jButton2");
-    btReset.addActionListener(new java.awt.event.ActionListener()
+    btRefresh.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+    btRefresh.setText("jButton2");
+    btRefresh.addActionListener(new java.awt.event.ActionListener()
     {
       public void actionPerformed(java.awt.event.ActionEvent evt)
       {
-        btResetActionPerformed(evt);
+        btRefreshActionPerformed(evt);
       }
     });
+
+    lbSaved.setText("Saved!");
 
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
     this.setLayout(layout);
@@ -239,16 +235,16 @@ public class StudentManagerPanel extends javax.swing.JPanel
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
+        .addComponent(spStudents, javax.swing.GroupLayout.DEFAULT_SIZE, 284, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(spStudents, javax.swing.GroupLayout.DEFAULT_SIZE, 327, Short.MAX_VALUE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(jPanel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addComponent(lbSaved, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE))
           .addGroup(layout.createSequentialGroup()
             .addComponent(btApply)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btReset)
-            .addGap(0, 0, Short.MAX_VALUE)))
+            .addComponent(btRefresh)))
         .addContainerGap())
     );
     layout.setVerticalGroup(
@@ -258,27 +254,58 @@ public class StudentManagerPanel extends javax.swing.JPanel
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
           .addGroup(layout.createSequentialGroup()
             .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addGap(0, 163, Short.MAX_VALUE))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 39, Short.MAX_VALUE)
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+              .addComponent(btApply)
+              .addComponent(btRefresh))
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(lbSaved))
           .addComponent(spStudents))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(btApply)
-          .addComponent(btReset))
         .addContainerGap())
     );
   }// </editor-fold>//GEN-END:initComponents
 
+  class StatusDisplayer implements Runnable
+  {
+
+    @Override
+    public void run()
+    {
+      lbSaved.setText("Saved!");
+      try
+      {
+        Thread.sleep(2000);
+      }
+      catch (InterruptedException ex)
+      {
+        Thread.currentThread().interrupt();
+      }
+
+      lbSaved.setText(" ");
+    }
+  }
+
   private void btApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btApplyActionPerformed
   {//GEN-HEADEREND:event_btApplyActionPerformed
-    Enumeration<ScavengerHuntStudent> elements = listModel.elements();
-    studentManager.saveStudents(elements);
+    int selectedIndex = ltStudents.getSelectedIndex();
+    if (selectedIndex >= 0 && selectedIndex < listModel.getSize())
+    {
+      ScavengerHuntStudent selStudent = listModel.get(selectedIndex);
+      selStudent.setAbility(getSelectedAbility());
+      studentManager.saveStudent(selStudent);
+    }
+
+    Thread displayer = new Thread(new StatusDisplayer());
+    displayer.start();
   }//GEN-LAST:event_btApplyActionPerformed
 
-  private void btResetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btResetActionPerformed
-  {//GEN-HEADEREND:event_btResetActionPerformed
-    studentManager.loadStudents();
+  private void btRefreshActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btRefreshActionPerformed
+  {//GEN-HEADEREND:event_btRefreshActionPerformed
     fillList();
-  }//GEN-LAST:event_btResetActionPerformed
+
+    int selIndex = ltStudents.getSelectedIndex();
+    refreshRadioButtons(selIndex);
+  }//GEN-LAST:event_btRefreshActionPerformed
 
   private void setSelectedAbility(Abilities.Ability ability)
   {
@@ -310,9 +337,10 @@ public class StudentManagerPanel extends javax.swing.JPanel
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JButton btApply;
-  private javax.swing.JButton btReset;
+  private javax.swing.JButton btRefresh;
   private javax.swing.ButtonGroup buttonGroup1;
   private javax.swing.JPanel jPanel1;
+  private javax.swing.JLabel lbSaved;
   private javax.swing.JList ltStudents;
   private javax.swing.JRadioButton rbRole1;
   private javax.swing.JRadioButton rbRole2;

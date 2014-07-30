@@ -4,9 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JCheckBoxMenuItem;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.MatteBorder;
 import org.jdesktop.wonderland.client.BaseClientPlugin;
 import org.jdesktop.wonderland.client.hud.CompassLayout;
@@ -38,12 +42,88 @@ public class InventoryClientPlugin extends BaseClientPlugin
 
   // The HUD Component displaying the navigation controls
   private HUDComponent hudComponent = null;
+  private HUDComponent waitingHudComponent = null;
 
   private InventoryManager inventoryManager = null;
 
   public InventoryClientPlugin()
   {
     inventoryManager = new InventoryManager();
+  }
+
+  class PleaseWait implements Runnable
+  {
+
+    private boolean stop = false;
+
+    public void setStop()
+    {
+      stop = true;
+    }
+
+    @Override
+    public void run()
+    {
+      JLabel textLabel = new JLabel("Loading... Please wait...");
+      JLabel aniLabel = new JLabel("/");
+      aniLabel.setHorizontalAlignment(SwingConstants.CENTER);
+
+      JPanel waitingPanel = new JPanel(new BorderLayout());
+      waitingPanel.add(textLabel, BorderLayout.NORTH);
+      waitingPanel.add(aniLabel, BorderLayout.CENTER);
+
+      waitingPanel.setBorder(new MatteBorder(5, 5, 5, 5, new Color(153, 153, 153)));
+      waitingPanel.setFont(new java.awt.Font("Tahoma", 1, 14));
+
+      if (waitingHudComponent == null)
+      {
+        // Create the HUD Panel that displays the navigation controls
+        HUD mainHUD = HUDManagerFactory.getHUDManager().getHUD("main");
+
+        waitingHudComponent = mainHUD.createComponent(waitingPanel);
+        waitingHudComponent.setName("Please wait");
+        waitingHudComponent.setPreferredLocation(CompassLayout.Layout.CENTER);
+//        waitingHudComponent.setSize(250, 250);
+
+        mainHUD.addComponent(waitingHudComponent);
+      }
+
+      waitingHudComponent.setMaximized();
+      waitingHudComponent.setVisible(true);
+
+      while (!stop)
+      {
+        String s = aniLabel.getText();
+        if (s.equals("/"))
+        {
+          aniLabel.setText("-");
+        }
+        else if (s.equals("-"))
+        {
+          aniLabel.setText("\\");
+        }
+        else if (s.equals("\\"))
+        {
+          aniLabel.setText("|");
+        }
+        else if (s.equals("|"))
+        {
+          aniLabel.setText("/");
+        }
+
+        try
+        {
+          Thread.sleep(250);
+        }
+        catch (InterruptedException ex)
+        {
+          Logger.getLogger(InventoryClientPlugin.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+      } // end while loop
+
+      waitingHudComponent.setVisible(false);
+    }
   }
 
   @Override
@@ -56,7 +136,11 @@ public class InventoryClientPlugin extends BaseClientPlugin
       {
         if (menuItem.isSelected() == true)
         {
-          inventoryManager.loadItems();
+          PleaseWait waitingRunnable = new PleaseWait();
+          Thread waitingThread = new Thread(waitingRunnable);
+          waitingThread.start();
+          inventoryManager.load();
+          waitingRunnable.setStop();
 
           if (hudComponent == null)
           {
@@ -117,7 +201,7 @@ public class InventoryClientPlugin extends BaseClientPlugin
     hudComponent = mainHUD.createComponent(inventoryPanel);
     hudComponent.setName("Inventory");
     hudComponent.setPreferredLocation(CompassLayout.Layout.CENTER);
-    hudComponent.setSize(500, 500);
+//    hudComponent.setSize(600, 500);
 
     mainHUD.addComponent(hudComponent);
 

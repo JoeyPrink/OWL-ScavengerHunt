@@ -12,8 +12,9 @@ import java.awt.GridLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -64,13 +65,13 @@ public class QuizComponent extends CellComponent implements ProximityListener
   private HUDComponent quizHUDComponent = null;
   private CollisionListener collisionListener = null;
 
-  private final HashMap<JCheckBox, Boolean> correctionModel;
+  private final Map<JCheckBox, Boolean> correctionModel;
 
   public QuizComponent(Cell cell)
   {
     super(cell);
 
-    correctionModel = new HashMap<JCheckBox, Boolean>();
+    correctionModel = Collections.synchronizedMap(new LinkedHashMap<JCheckBox, Boolean>());
   }
 
   @Override
@@ -103,8 +104,6 @@ public class QuizComponent extends CellComponent implements ProximityListener
   public void viewEnterExit(boolean entered, Cell cell, CellID viewCellID,
     BoundingVolume proximityVolume, int proximityIndex)
   {
-    System.out.println("viewEnterExit trigger!");
-    getXMLFromServer();
     displayQuiz();
   }
 
@@ -120,15 +119,10 @@ public class QuizComponent extends CellComponent implements ProximityListener
     this.look = state.getLook();
   }
 
-  public void getXMLFromServer()
-  {
-    // TODO
-  }
-
   /**
    * Creates and returns the top map HUD component.
    */
-  private HUDComponent createQuizHUDComponent(Quiz quiz)
+  private HUDComponent createQuizHUDComponent()
   {
     // Create the HUD Panel that displays the navigation controls
     HUD mainHUD = HUDManagerFactory.getHUDManager().getHUD("main");
@@ -136,10 +130,11 @@ public class QuizComponent extends CellComponent implements ProximityListener
     JPanel quizPanel = new JPanel();
     quizPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
 
-    ArrayList<Quiz.Question> questions = quiz.getQuestions();
+    List<Quiz.Question> questions = this.quiz.getQuestions();
     int numQuestions = questions.size();
 
-    quizPanel.setLayout(new GridLayout(numQuestions, 1, 5, 5));
+    int numRows = ((int) (numQuestions / 2)) + 1;
+    quizPanel.setLayout(new GridLayout(numRows, 2, 5, 5));
 
     correctionModel.clear();
 
@@ -165,7 +160,7 @@ public class QuizComponent extends CellComponent implements ProximityListener
       {
         lbQuestionText.setText(question.getText());
 
-        HashMap<String, Boolean> answers = question.getAnswers();
+        Map<String, Boolean> answers = question.getAnswers();
         int numAnswers = answers.size();
 
         JPanel answerPanel = new JPanel();
@@ -192,7 +187,7 @@ public class QuizComponent extends CellComponent implements ProximityListener
 
     quizHUDComponent = mainHUD.createComponent(quizPanel);
 
-    quizHUDComponent.setName(quiz.getName());
+    quizHUDComponent.setName(this.quiz.getName());
     quizHUDComponent.setPreferredLocation(CompassLayout.Layout.CENTER);
 
     quizHUDComponent.setSize(500, 500);
@@ -211,7 +206,12 @@ public class QuizComponent extends CellComponent implements ProximityListener
           if (hudEventType == HUDEvent.HUDEventType.CLOSED
           || hudEventType == HUDEvent.HUDEventType.MINIMIZED)
           {
+//            quizHUDComponent.setVisible(false);
+
+            HUD hud = HUDManagerFactory.getHUDManager().getHUD("main");
             quizHUDComponent.setVisible(false);
+            hud.removeComponent(quizHUDComponent);
+            quizHUDComponent = null;
           }
         }
       }
@@ -224,7 +224,7 @@ public class QuizComponent extends CellComponent implements ProximityListener
   {
     if (quizHUDComponent == null)
     {
-      quizHUDComponent = createQuizHUDComponent(quiz);
+      quizHUDComponent = createQuizHUDComponent();
       quizHUDComponent.setMaximized();
       quizHUDComponent.setVisible(true);
     }
@@ -232,12 +232,12 @@ public class QuizComponent extends CellComponent implements ProximityListener
     {
       quizHUDComponent.setVisible(true);
     }
+
+    checkAnswers();
   }
 
   private void teleport()
   {
-//    System.out.println("woooosh");
-
     // teleport in a separate thread, since we don't know which one we
     // are called on
     // if you say so...
@@ -286,8 +286,6 @@ public class QuizComponent extends CellComponent implements ProximityListener
     @Override
     public void commitEvent(Event event)
     {
-      System.out.println("CollisionListener commitEvent trigger!");
-      getXMLFromServer();
       displayQuiz();
     }
   }
@@ -298,9 +296,6 @@ public class QuizComponent extends CellComponent implements ProximityListener
     @Override
     public void itemStateChanged(ItemEvent e)
     {
-      JCheckBox affected = (JCheckBox) e.getItem();
-      System.out.println(affected.getText() + " changed.");
-
       checkAnswers();
     }
   }

@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
@@ -21,6 +20,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import org.jdesktop.wonderland.client.cell.properties.CellPropertiesEditor;
 import org.jdesktop.wonderland.client.cell.properties.annotation.PropertiesFactory;
 import org.jdesktop.wonderland.client.cell.properties.spi.PropertiesFactorySPI;
+import org.jdesktop.wonderland.client.comms.WonderlandSession;
+import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.common.cell.state.CellComponentServerState;
 import org.jdesktop.wonderland.common.cell.state.CellServerState;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentCollection;
@@ -42,16 +43,21 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
 {
 
   private CellPropertiesEditor editor = null;
-  private String originalXmlPath;
+  private String originalTitle;
+  private String originalDescription;
   private String originalImagePath;
-  private Ability[] originalAbilities;
   private boolean originalOnce;
+  private Ability[] originalAbilities;
 
   private final JCheckBox[] boxes;
 
   public ItemComponentProperties()
   {
     initComponents();
+
+    tfTitle.getDocument().addDocumentListener(new InfoTextFieldListener());
+    taDescription.getDocument().addDocumentListener(new InfoTextFieldListener());
+    tfImgPath.getDocument().addDocumentListener(new InfoTextFieldListener());
 
     this.boxes = new JCheckBox[]
     {
@@ -68,20 +74,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
 
       box.addActionListener(new AbilityCheckBoxListener());
     }
-    cbRoleAll.addActionListener(new AbilityCheckBoxListener());
-
-    txtPath.getDocument().addDocumentListener(new InfoTextFieldListener());
-    imgPath.getDocument().addDocumentListener(new InfoTextFieldListener());
-
-    buttonBrowse.setText("Browse XML");
-    buttonBrowseImg.setText("Browse Images");
-
-    btApply.setText("Apply");
-//    btApply.setEnabled(false);
-    btReset.setText("Reset");
-
-    taItem.setLineWrap(true); 		//automatischen Zeilenumbruch
-    taItem.setWrapStyleWord(true);	//Bei Zeilenumbruch Wort nicht trennen
+//    cbRoleAll.addActionListener(new AbilityCheckBoxListener());
   }
 
   @Override
@@ -102,92 +95,6 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     return this;
   }
 
-  @Override
-  public void open()
-  {
-    CellServerState state = editor.getCellServerState();
-    CellComponentServerState compState
-      = state.getComponentServerState(ItemComponentServerState.class);
-
-    if (compState != null)
-    {
-      ItemComponentServerState itemState = (ItemComponentServerState) compState;
-
-      originalXmlPath = itemState.getXmlPath();
-      txtPath.setText(originalXmlPath);
-      readItemTextArea(originalXmlPath);
-
-      originalImagePath = itemState.getImgPath();
-      imgPath.setText(originalImagePath);
-
-      originalOnce = itemState.getOnce();
-      cbOnce.setSelected(originalOnce);
-
-      originalAbilities = itemState.getAbilities();
-      updateLists();
-      setCheckBoxes(originalAbilities);
-    }
-  }
-
-  private void updateLists()
-  {
-    updateXMLList();
-    updateImageList();
-  }
-
-  private void updateXMLList()
-  {
-    loadList(listFiles, ItemUtils.SUBDIRNAME_XML);
-    selectCurrentElement(listFiles, originalXmlPath);
-  }
-
-  private void updateImageList()
-  {
-    loadList(listImages, ItemUtils.SUBDIRNAME_IMG);
-    selectCurrentElement(listImages, originalImagePath);
-  }
-
-  private void loadList(JList list, String subDirName)
-  {
-    DefaultListModel listModel = new DefaultListModel();
-
-    try
-    {
-      ContentCollection fileRoot = ItemUtils.getFileRoot(subDirName, "");
-      List<ContentNode> children = fileRoot.getChildren();
-
-      for (ContentNode child : children)
-      {
-        listModel.addElement(child.getName());
-      }
-    }
-    catch (ContentRepositoryException ex)
-    {
-      listModel.addElement("Sorry, couldn't load files.");
-    }
-    list.setModel(listModel);
-  }
-
-  private void selectCurrentElement(JList list, String originalFilePath)
-  {
-    if (originalFilePath == null)
-    {
-      return;
-    }
-
-    String curr = ItemUtils.getFileNameFromPath(originalFilePath);
-
-    int numberOfElements = list.getModel().getSize();
-    for (int i = 0; i < numberOfElements; i++)
-    {
-      String element = (String) list.getModel().getElementAt(i);
-      if (element.equals(curr))
-      {
-        list.setSelectedIndex(i);
-      }
-    }
-  }
-
   private void setCheckBoxes(Ability[] abilities)
   {
     for (JCheckBox box : boxes)
@@ -206,6 +113,110 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   }
 
   @Override
+  public void open()
+  {
+    CellServerState state = editor.getCellServerState();
+    CellComponentServerState compState
+      = state.getComponentServerState(ItemComponentServerState.class);
+
+    if (compState != null)
+    {
+      ItemComponentServerState itemState = (ItemComponentServerState) compState;
+
+      originalTitle = itemState.getTitle();
+      tfTitle.setText(originalTitle);
+
+      originalDescription = itemState.getDescription();
+      taDescription.setText(originalDescription);
+
+      originalImagePath = itemState.getImgPath();
+      tfImgPath.setText(originalImagePath);
+
+      originalAbilities = itemState.getAbilities();
+      setCheckBoxes(originalAbilities);
+
+      originalOnce = itemState.getOnce();
+      cbOnce.setSelected(originalOnce);
+
+      initImageList();
+    }
+  }
+
+  private void initImageList()
+  {
+    DefaultListModel listModel = new DefaultListModel();
+
+    try
+    {
+      ContentCollection fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_IMG, "");
+      List<ContentNode> children = fileRoot.getChildren();
+
+      for (ContentNode child : children)
+      {
+        listModel.addElement(child.getName());
+      }
+    }
+    catch (ContentRepositoryException ex)
+    {
+      listModel.addElement("Sorry, couldn't load files.");
+    }
+
+    listImages.setModel(listModel);
+
+    int lastIndex = listModel.getSize() - 1;
+    if (lastIndex >= 0)
+    {
+      listImages.ensureIndexIsVisible(lastIndex);
+    }
+
+    selectCurrentElement();
+  }
+
+  private void addSomethingToList(String fileName)
+  {
+    // fileName incl. ".png"
+    DefaultListModel listModel = (DefaultListModel) listImages.getModel();
+
+    //if a file with the same name was in the list before it gets overwritten
+    listModel.removeElement(fileName);
+    listModel.addElement(fileName);
+
+    selectCurrentElement();
+  }
+
+  private void selectCurrentElement()
+  {
+    if (originalImagePath == null || !originalImagePath.contains("/"))
+    {
+      return;
+    }
+
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
+
+    String userFromPath = ItemUtils.getUserDirFromPath(originalImagePath);
+
+    if (!userFromPath.equals(userName)) // is it one of my images?
+    {
+      return; // no
+    }
+
+    String curr = ItemUtils.getFileNameFromPath(originalImagePath);
+
+    int numberOfElements = listImages.getModel().getSize();
+    for (int i = 0; i < numberOfElements; i++)
+    {
+      String element = (String) listImages.getModel().getElementAt(i);
+      if (element.equals(curr))
+      {
+        listImages.setSelectedIndex(i);
+        listImages.ensureIndexIsVisible(i);
+        break;
+      }
+    }
+  }
+
+  @Override
   public void close()
   {
   }
@@ -213,17 +224,12 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   @Override
   public void restore()
   {
-    txtPath.setText(originalXmlPath);
-    selectCurrentElement(listFiles, originalXmlPath);
-    readItemTextArea(originalXmlPath);
-
-    imgPath.setText(originalImagePath);
-    selectCurrentElement(listImages, originalImagePath);
-
-    cbOnce.setSelected(originalOnce);
-
-    //printAbilities(originalAbilities, "This are the original abilities:");
+    tfTitle.setText(originalTitle);
+    taDescription.setText(originalDescription);
+    tfImgPath.setText(originalImagePath);
+    selectCurrentElement();
     setCheckBoxes(originalAbilities);
+    cbOnce.setSelected(originalOnce);
   }
 
   @Override
@@ -234,14 +240,14 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       = state.getComponentServerState(ItemComponentServerState.class);
 
     // Update values in Server State
-    ((ItemComponentServerState) compState).setXmlPath(txtPath.getText());
-    ((ItemComponentServerState) compState).setImgPath(imgPath.getText());
-    ((ItemComponentServerState) compState).setOnce(cbOnce.isSelected());
+    ((ItemComponentServerState) compState).setTitle(tfTitle.getText());
+    ((ItemComponentServerState) compState).setDescription(taDescription.getText());
+    ((ItemComponentServerState) compState).setImgPath(tfImgPath.getText());
 
     Ability[] newAbilites = getSelectedAbilities();
-    //printAbilities(newAbilites, "This are the currently selected abilities:");
-
     ((ItemComponentServerState) compState).setAbilities(newAbilites);
+
+    ((ItemComponentServerState) compState).setOnce(cbOnce.isSelected());
 
     editor.addToUpdateList(compState);
   }
@@ -280,55 +286,115 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   private void initComponents()
   {
 
-    jLabel1 = new javax.swing.JLabel();
-    txtPath = new javax.swing.JTextField();
-    jScrollPaneFiles = new javax.swing.JScrollPane();
-    listFiles = new javax.swing.JList();
-    buttonBrowse = new javax.swing.JButton();
+    jPanel3 = new javax.swing.JPanel();
+    pnItemDescription = new javax.swing.JPanel();
+    lbTitle = new javax.swing.JLabel();
+    tfTitle = new javax.swing.JTextField();
+    spDesciption = new javax.swing.JScrollPane();
+    taDescription = new javax.swing.JTextArea();
+    btLoad = new javax.swing.JButton();
+    btSave = new javax.swing.JButton();
+    pnImgFiles = new javax.swing.JPanel();
     jLabel2 = new javax.swing.JLabel();
-    imgPath = new javax.swing.JTextField();
-    jScrollPaneImages = new javax.swing.JScrollPane();
+    tfImgPath = new javax.swing.JTextField();
+    jPanel1 = new javax.swing.JPanel();
+    spImages = new javax.swing.JScrollPane();
     listImages = new javax.swing.JList();
     buttonBrowseImg = new javax.swing.JButton();
-    jPanel1 = new javax.swing.JPanel();
-    jLabel3 = new javax.swing.JLabel();
+    jPanel4 = new javax.swing.JPanel();
+    jPanel5 = new javax.swing.JPanel();
+    pnRolesOnce = new javax.swing.JPanel();
+    pnRoles = new javax.swing.JPanel();
     cbRole1 = new javax.swing.JCheckBox();
     cbRole2 = new javax.swing.JCheckBox();
     cbRole3 = new javax.swing.JCheckBox();
     cbRole4 = new javax.swing.JCheckBox();
-    cbRoleAll = new javax.swing.JCheckBox();
-    jPanel2 = new javax.swing.JPanel();
-    jScrollPaneTextArea = new javax.swing.JScrollPane();
-    taItem = new javax.swing.JTextArea();
-    btApply = new javax.swing.JButton();
-    btReset = new javax.swing.JButton();
-    jPanel3 = new javax.swing.JPanel();
+    pnOnce = new javax.swing.JPanel();
     cbOnce = new javax.swing.JCheckBox();
 
-    jLabel1.setText("Path to item description file:");
+    setLayout(new java.awt.BorderLayout());
 
-    listFiles.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-    listFiles.addListSelectionListener(new javax.swing.event.ListSelectionListener()
-    {
-      public void valueChanged(javax.swing.event.ListSelectionEvent evt)
-      {
-        listFilesValueChanged(evt);
-      }
-    });
-    jScrollPaneFiles.setViewportView(listFiles);
+    jPanel3.setLayout(new java.awt.GridLayout(2, 1));
 
-    buttonBrowse.setText("Browse XML");
-    buttonBrowse.addActionListener(new java.awt.event.ActionListener()
+    pnItemDescription.setBorder(javax.swing.BorderFactory.createTitledBorder("Item description"));
+
+    lbTitle.setText("Title:");
+
+    spDesciption.setPreferredSize(new java.awt.Dimension(100, 100));
+
+    taDescription.setColumns(20);
+    taDescription.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
+    taDescription.setLineWrap(true);
+    taDescription.setRows(5);
+    taDescription.setWrapStyleWord(true);
+    taDescription.setMinimumSize(new java.awt.Dimension(10, 2));
+    taDescription.setPreferredSize(new java.awt.Dimension(100, 100));
+    spDesciption.setViewportView(taDescription);
+
+    btLoad.setText("Load");
+    btLoad.addActionListener(new java.awt.event.ActionListener()
     {
       public void actionPerformed(java.awt.event.ActionEvent evt)
       {
-        buttonBrowseActionPerformed(evt);
+        btLoadActionPerformed(evt);
       }
     });
 
-    jLabel2.setText("Want to add an image?");
+    btSave.setText("Save");
+    btSave.addActionListener(new java.awt.event.ActionListener()
+    {
+      public void actionPerformed(java.awt.event.ActionEvent evt)
+      {
+        btSaveActionPerformed(evt);
+      }
+    });
 
-    listImages.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+    javax.swing.GroupLayout pnItemDescriptionLayout = new javax.swing.GroupLayout(pnItemDescription);
+    pnItemDescription.setLayout(pnItemDescriptionLayout);
+    pnItemDescriptionLayout.setHorizontalGroup(
+      pnItemDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(pnItemDescriptionLayout.createSequentialGroup()
+        .addComponent(btLoad)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(btSave)
+        .addContainerGap(101, Short.MAX_VALUE))
+      .addGroup(pnItemDescriptionLayout.createSequentialGroup()
+        .addComponent(lbTitle)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(tfTitle))
+      .addComponent(spDesciption, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+    );
+    pnItemDescriptionLayout.setVerticalGroup(
+      pnItemDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(pnItemDescriptionLayout.createSequentialGroup()
+        .addGroup(pnItemDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(lbTitle, javax.swing.GroupLayout.PREFERRED_SIZE, 20, javax.swing.GroupLayout.PREFERRED_SIZE)
+          .addComponent(tfTitle, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(spDesciption, javax.swing.GroupLayout.PREFERRED_SIZE, 120, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(pnItemDescriptionLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btLoad)
+          .addComponent(btSave))
+        .addContainerGap(13, Short.MAX_VALUE))
+    );
+
+    jPanel3.add(pnItemDescription);
+
+    pnImgFiles.setBorder(javax.swing.BorderFactory.createTitledBorder("Image files"));
+
+    jLabel2.setText("Choose an image file:");
+
+    tfImgPath.setEnabled(false);
+
+    jPanel1.setLayout(new java.awt.GridLayout(1, 1));
+
+    listImages.setModel(new javax.swing.AbstractListModel()
+    {
+      String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+      public int getSize() { return strings.length; }
+      public Object getElementAt(int i) { return strings[i]; }
+    });
     listImages.addListSelectionListener(new javax.swing.event.ListSelectionListener()
     {
       public void valueChanged(javax.swing.event.ListSelectionEvent evt)
@@ -336,9 +402,11 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
         listImagesValueChanged(evt);
       }
     });
-    jScrollPaneImages.setViewportView(listImages);
+    spImages.setViewportView(listImages);
 
-    buttonBrowseImg.setText("Browse Images");
+    jPanel1.add(spImages);
+
+    buttonBrowseImg.setText("Browse");
     buttonBrowseImg.addActionListener(new java.awt.event.ActionListener()
     {
       public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -347,125 +415,70 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       }
     });
 
-    jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+    javax.swing.GroupLayout pnImgFilesLayout = new javax.swing.GroupLayout(pnImgFiles);
+    pnImgFiles.setLayout(pnImgFilesLayout);
+    pnImgFilesLayout.setHorizontalGroup(
+      pnImgFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(pnImgFilesLayout.createSequentialGroup()
+        .addComponent(buttonBrowseImg)
+        .addGap(0, 0, Short.MAX_VALUE))
+      .addComponent(tfImgPath)
+      .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 219, Short.MAX_VALUE)
+    );
+    pnImgFilesLayout.setVerticalGroup(
+      pnImgFilesLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGroup(pnImgFilesLayout.createSequentialGroup()
+        .addComponent(jLabel2)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(tfImgPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addGap(8, 8, 8)
+        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(buttonBrowseImg)
+        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+    );
 
-    jLabel3.setText("Who can pick it up?");
+    jPanel3.add(pnImgFiles);
+
+    add(jPanel3, java.awt.BorderLayout.CENTER);
+
+    jPanel4.setLayout(new java.awt.GridLayout(2, 1));
+
+    javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
+    jPanel5.setLayout(jPanel5Layout);
+    jPanel5Layout.setHorizontalGroup(
+      jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 119, Short.MAX_VALUE)
+    );
+    jPanel5Layout.setVerticalGroup(
+      jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addGap(0, 211, Short.MAX_VALUE)
+    );
+
+    jPanel4.add(jPanel5);
+
+    pnRolesOnce.setLayout(new java.awt.BorderLayout());
+
+    pnRoles.setBorder(javax.swing.BorderFactory.createTitledBorder("Who can pick it up?"));
+    pnRoles.setLayout(new java.awt.GridLayout(4, 1));
 
     cbRole1.setText("Role1");
+    pnRoles.add(cbRole1);
 
     cbRole2.setText("Role2");
+    pnRoles.add(cbRole2);
 
     cbRole3.setText("Role3");
+    pnRoles.add(cbRole3);
 
     cbRole4.setText("Role4");
+    pnRoles.add(cbRole4);
 
-    cbRoleAll.addActionListener(new java.awt.event.ActionListener()
-    {
-      public void actionPerformed(java.awt.event.ActionEvent evt)
-      {
-        onClickEverybody(evt);
-      }
-    });
+    pnRolesOnce.add(pnRoles, java.awt.BorderLayout.CENTER);
 
-    javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
-    jPanel1.setLayout(jPanel1Layout);
-    jPanel1Layout.setHorizontalGroup(
-      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel1Layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(cbRoleAll)
-          .addComponent(cbRole4)
-          .addComponent(jLabel3)
-          .addComponent(cbRole1)
-          .addComponent(cbRole2)
-          .addComponent(cbRole3))
-        .addContainerGap(24, Short.MAX_VALUE))
-    );
-    jPanel1Layout.setVerticalGroup(
-      jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel1Layout.createSequentialGroup()
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addComponent(jLabel3)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(cbRoleAll)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(cbRole1)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(cbRole2)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(cbRole3)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(cbRole4)
-        .addGap(17, 17, 17))
-    );
-
-    jPanel2.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-    taItem.setColumns(20);
-    taItem.setFont(new java.awt.Font("Tahoma", 0, 11)); // NOI18N
-    taItem.setLineWrap(true);
-    taItem.setRows(5);
-    taItem.setWrapStyleWord(true);
-    taItem.setMinimumSize(new java.awt.Dimension(10, 2));
-    taItem.addInputMethodListener(new java.awt.event.InputMethodListener()
-    {
-      public void caretPositionChanged(java.awt.event.InputMethodEvent evt)
-      {
-      }
-      public void inputMethodTextChanged(java.awt.event.InputMethodEvent evt)
-      {
-        taItemInputMethodTextChanged(evt);
-      }
-    });
-    jScrollPaneTextArea.setViewportView(taItem);
-
-    btApply.setText("jButton1");
-    btApply.addActionListener(new java.awt.event.ActionListener()
-    {
-      public void actionPerformed(java.awt.event.ActionEvent evt)
-      {
-        btApplyActionPerformed(evt);
-      }
-    });
-
-    btReset.setText("jButton2");
-    btReset.addActionListener(new java.awt.event.ActionListener()
-    {
-      public void actionPerformed(java.awt.event.ActionEvent evt)
-      {
-        btResetActionPerformed(evt);
-      }
-    });
-
-    javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-    jPanel2.setLayout(jPanel2Layout);
-    jPanel2Layout.setHorizontalGroup(
-      jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel2Layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPaneTextArea, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE)
-          .addGroup(jPanel2Layout.createSequentialGroup()
-            .addComponent(btApply)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btReset)
-            .addGap(0, 0, Short.MAX_VALUE)))
-        .addContainerGap())
-    );
-    jPanel2Layout.setVerticalGroup(
-      jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(jPanel2Layout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(jScrollPaneTextArea)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(btApply)
-          .addComponent(btReset))
-        .addContainerGap())
-    );
-
-    jPanel3.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+    pnOnce.setBorder(javax.swing.BorderFactory.createTitledBorder("Availability"));
+    pnOnce.setLayout(new java.awt.GridLayout(1, 1));
 
     cbOnce.setText("Pick up only once");
     cbOnce.addItemListener(new java.awt.event.ItemListener()
@@ -475,189 +488,14 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
         cbOnceItemStateChanged(evt);
       }
     });
+    pnOnce.add(cbOnce);
 
-    javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-    jPanel3.setLayout(jPanel3Layout);
-    jPanel3Layout.setHorizontalGroup(
-      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 0, Short.MAX_VALUE)
-      .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-          .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(cbOnce)
-          .addGap(30, 30, 30)))
-    );
-    jPanel3Layout.setVerticalGroup(
-      jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGap(0, 37, Short.MAX_VALUE)
-      .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-        .addGroup(jPanel3Layout.createSequentialGroup()
-          .addContainerGap()
-          .addComponent(cbOnce, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-    );
+    pnRolesOnce.add(pnOnce, java.awt.BorderLayout.SOUTH);
 
-    javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
-    this.setLayout(layout);
-    layout.setHorizontalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(layout.createSequentialGroup()
-        .addContainerGap()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-          .addComponent(buttonBrowse, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(buttonBrowseImg, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(imgPath, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
-          .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)
-          .addComponent(txtPath, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPaneImages, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addGroup(layout.createSequentialGroup()
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-              .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
-            .addGap(0, 0, Short.MAX_VALUE)))
-        .addContainerGap())
-    );
-    layout.setVerticalGroup(
-      layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(layout.createSequentialGroup()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(layout.createSequentialGroup()
-            .addContainerGap()
-            .addComponent(jLabel1)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(txtPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPaneFiles, javax.swing.GroupLayout.PREFERRED_SIZE, 125, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(buttonBrowse)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(jLabel2)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(imgPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(jScrollPaneImages, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE))
-          .addGroup(layout.createSequentialGroup()
-            .addGap(8, 8, 8)
-            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-          .addComponent(buttonBrowseImg))
-        .addContainerGap())
-    );
+    jPanel4.add(pnRolesOnce);
+
+    add(jPanel4, java.awt.BorderLayout.EAST);
   }// </editor-fold>//GEN-END:initComponents
-
-//  /**
-//   * Fetches the user's root directory for all xml files using the current
-//   * primary server.
-//   *
-//   * Code based on sample cell and learning poster by
-//   *
-//   * @author Jordan Slott <jslott@dev.java.net>
-//   * @author Ronny Standtke <ronny.standtke@fhnw.ch>
-//   * @author Johanna Pirker <jpirker@iicm.edu>
-//   *
-//   * adapted by
-//   * @author Lisa Tomes <lisa.tomes@student.tugraz.at>
-//   * @param subDirName
-//   *
-//   * @return the user's root directory using the current primary server
-//   * @throws
-//   * org.jdesktop.wonderland.modules.contentrepo.common.ContentRepositoryException
-//   */
-//  public ContentCollection getFileRoot(String subDirName) throws ContentRepositoryException
-//  {
-//    ContentRepositoryRegistry r = ContentRepositoryRegistry.getInstance();
-//    ServerSessionManager session = LoginManager.getPrimary();
-//
-//    // Try to find the desired sub-directory or create it if it doesn't exist
-//    ContentCollection userRoot = r.getRepository(session).getUserRoot();
-//    ContentNode node = (ContentNode) userRoot.getChild(subDirName);
-//    if (node == null)
-//    {
-//      node = (ContentNode) userRoot.createChild(subDirName, Type.COLLECTION);
-//    }
-//    else
-//    {
-//      if (!(node instanceof ContentCollection))
-//      {
-//        node.getParent().removeChild(subDirName);
-//        node = (ContentNode) userRoot.createChild(subDirName, Type.COLLECTION);
-//      }
-//    }
-//
-//    return (ContentCollection) node;
-//  }
-//  private URL uploadFileToServer(File file, String subDirName)
-//    throws ContentRepositoryException, IOException
-//  {
-//    String fileName = file.getName();
-//
-//    if (file.length() > 100000) // 100 KB
-//    {
-//      System.out.println("Item upload error: File too large!");
-//      return null;
-//    }
-//
-//    ContentCollection fileRoot = getFileRoot(subDirName);
-//
-//    ContentNode resource = fileRoot.getChild(fileName);
-//    if (resource == null)
-//    {
-//      resource = fileRoot.createChild(fileName, Type.RESOURCE);
-//    }
-//    else
-//    {
-//      if (!(resource instanceof ContentResource))
-//      {
-//        resource.getParent().removeChild(fileName);
-//        resource = fileRoot.createChild(fileName, Type.RESOURCE);
-//      }
-//    }
-//
-//    // Here the upload-magic happens
-//    ((ContentResource) resource).put(file);
-//
-//    return ((ContentResource) resource).getURL();
-//  }
-  private void buttonBrowseActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buttonBrowseActionPerformed
-  {//GEN-HEADEREND:event_buttonBrowseActionPerformed
-    FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-    File xmlFile = browse(xmlFilter);
-
-    if (xmlFile != null)
-    {
-      try
-      {
-        URL url = ItemUtils.uploadFileToServer(xmlFile, ItemUtils.SUBDIRNAME_XML, "");
-        if (url != null)
-        {
-          updateXMLList();
-        }
-        else
-        {
-          JOptionPane.showMessageDialog(null, "File too large!", "Error", JOptionPane.ERROR_MESSAGE);
-        }
-      }
-      catch (ContentRepositoryException ex)
-      {
-        Logger.getLogger(ItemComponentProperties.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      catch (IOException ex)
-      {
-        Logger.getLogger(ItemComponentProperties.class.getName()).log(Level.SEVERE, null, ex);
-      }
-    }
-  }//GEN-LAST:event_buttonBrowseActionPerformed
 
   private File browse(FileNameExtensionFilter filter)
   {
@@ -672,53 +510,8 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     return null;
   }
 
-  private void listFilesValueChanged(javax.swing.event.ListSelectionEvent evt)//GEN-FIRST:event_listFilesValueChanged
-  {//GEN-HEADEREND:event_listFilesValueChanged
-    String fileName = (String) listFiles.getSelectedValue();
-    if (fileName == null)
-    {
-      return;
-    }
-
-    boolean found = false;
-    try
-    {
-      ContentCollection fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_XML, "");
-      List<ContentNode> children = fileRoot.getChildren();
-
-      for (ContentNode child : children)
-      {
-        if (child.getName().equals(fileName))
-        {
-          // Only one slash, because there is already one at the beginning
-          // of child path
-          txtPath.setText("wlcontent:/" + child.getPath());
-          readItemTextArea("wlcontent:/" + child.getPath());
-          found = true;
-        }
-      }
-
-      if (!found)
-      {
-        setSorryText();
-      }
-    }
-    catch (ContentRepositoryException ex)
-    {
-      setSorryText();
-    }
-  }//GEN-LAST:event_listFilesValueChanged
-
-  private void setSorryText()
-  {
-    txtPath.setText("Sorry, couldn't load file path.");
-    taItem.setText("");
-  }
-
   private void buttonBrowseImgActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_buttonBrowseImgActionPerformed
   {//GEN-HEADEREND:event_buttonBrowseImgActionPerformed
-    // TODO: maybe exclude gif since it seems that gifs cannot be displayed
-    // on the whiteboard module (SVG)
     final String[] imgExtensions =
     {
       "jpg", "png", "gif"
@@ -739,7 +532,7 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
         URL url = ItemUtils.uploadFileToServer(imgFile, ItemUtils.SUBDIRNAME_IMG, "");
         if (url != null)
         {
-          updateImageList();
+          addSomethingToList(imgFile.getName());
         }
         else
         {
@@ -757,6 +550,69 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
     }
   }//GEN-LAST:event_buttonBrowseImgActionPerformed
 
+  private void btLoadActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btLoadActionPerformed
+  {//GEN-HEADEREND:event_btLoadActionPerformed
+    String[] items;
+
+    try
+    {
+      ContentCollection fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_XML, "");
+      List<ContentNode> children = fileRoot.getChildren();
+
+      items = new String[children.size()];
+      int index = 0;
+      for (ContentNode child : children)
+      {
+        String childName = child.getName();
+        items[index] = childName.substring(0, childName.length() - 4);  // cut off ".xml"
+        index++;
+      }
+    }
+    catch (ContentRepositoryException ex)
+    {
+      items = new String[0];
+    }
+
+    if (items.length < 1)
+    {
+      JOptionPane.showMessageDialog(this, "There are no item files to be loaded.");
+    }
+    else
+    {
+      String quiz = (String) JOptionPane.showInputDialog(this,
+        "Please select item file:",
+        "Select item",
+        JOptionPane.QUESTION_MESSAGE,
+        null, items, null);
+
+      Item loaded = ItemUtils.getItem(quiz);
+
+      if (loaded != null)
+      {
+        tfTitle.setText(loaded.getTitle());
+        taDescription.setText(loaded.getContent());
+      }
+    }
+  }//GEN-LAST:event_btLoadActionPerformed
+
+  private void btSaveActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btSaveActionPerformed
+  {//GEN-HEADEREND:event_btSaveActionPerformed
+    String title = tfTitle.getText();
+    if (!title.trim().equals(""))
+    {
+      Item i = new Item(title, taDescription.getText());
+      String fileName = ItemUtils.makeFileName(title);
+      ItemUtils.setItem(fileName, i);
+
+      JOptionPane.showMessageDialog(this, "Item was stored on server.");
+    }
+  }//GEN-LAST:event_btSaveActionPerformed
+
+  private void cbOnceItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cbOnceItemStateChanged
+  {//GEN-HEADEREND:event_cbOnceItemStateChanged
+    checkDirty();
+  }//GEN-LAST:event_cbOnceItemStateChanged
+
   private void listImagesValueChanged(javax.swing.event.ListSelectionEvent evt)//GEN-FIRST:event_listImagesValueChanged
   {//GEN-HEADEREND:event_listImagesValueChanged
     String fileName = (String) listImages.getSelectedValue();
@@ -765,116 +621,12 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
       return;
     }
 
-    boolean found = false;
-    try
-    {
-      ContentCollection fileRoot = ItemUtils.getFileRoot(ItemUtils.SUBDIRNAME_IMG, "");
-      List<ContentNode> children = fileRoot.getChildren();
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    String userName = session.getUserID().getUsername();
 
-      for (ContentNode child : children)
-      {
-        if (child.getName().equals(fileName))
-        {
-          // Only one slash, because there is already one at the beginning
-          // of child path
-          imgPath.setText("wlcontent:/" + child.getPath());
-          found = true;
-        }
-      }
-
-      if (!found)
-      {
-        setSorryText();
-      }
-    }
-    catch (ContentRepositoryException ex)
-    {
-      setSorryText();
-    }
+    String wlpath = ItemUtils.makeWlcontentPath(userName, ItemUtils.SUBDIRNAME_IMG, fileName);
+    tfImgPath.setText(wlpath);
   }//GEN-LAST:event_listImagesValueChanged
-
-  private void onClickEverybody(java.awt.event.ActionEvent evt)//GEN-FIRST:event_onClickEverybody
-  {//GEN-HEADEREND:event_onClickEverybody
-    boolean everybody = cbRoleAll.isSelected();
-
-    if (everybody)
-    {
-      cbRole1.setSelected(true);
-      cbRole2.setSelected(true);
-      cbRole3.setSelected(true);
-      cbRole4.setSelected(true);
-    }
-    else
-    {
-      cbRole1.setSelected(false);
-      cbRole2.setSelected(false);
-      cbRole3.setSelected(false);
-      cbRole4.setSelected(false);
-    }
-  }//GEN-LAST:event_onClickEverybody
-
-  private void btResetActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btResetActionPerformed
-  {//GEN-HEADEREND:event_btResetActionPerformed
-    if (!txtPath.getText().equals("") && txtPath.getText().startsWith("wlcontent"))
-    {
-      readItemTextArea(txtPath.getText());
-    }
-  }//GEN-LAST:event_btResetActionPerformed
-
-  private void btApplyActionPerformed(java.awt.event.ActionEvent evt)//GEN-FIRST:event_btApplyActionPerformed
-  {//GEN-HEADEREND:event_btApplyActionPerformed
-    if (!txtPath.getText().equals("") && txtPath.getText().startsWith("wlcontent"))
-    {
-      writeItem(txtPath.getText());
-    }
-  }//GEN-LAST:event_btApplyActionPerformed
-
-  private void taItemInputMethodTextChanged(java.awt.event.InputMethodEvent evt)//GEN-FIRST:event_taItemInputMethodTextChanged
-  {//GEN-HEADEREND:event_taItemInputMethodTextChanged
-//    btApply.setEnabled(true);
-  }//GEN-LAST:event_taItemInputMethodTextChanged
-
-  private void cbOnceItemStateChanged(java.awt.event.ItemEvent evt)//GEN-FIRST:event_cbOnceItemStateChanged
-  {//GEN-HEADEREND:event_cbOnceItemStateChanged
-    checkDirty();
-  }//GEN-LAST:event_cbOnceItemStateChanged
-
-  private void printAbilities(Ability[] abilities, String info)
-  {
-    if (abilities == null)
-    {
-      System.out.println("  null");
-      return;
-    }
-
-    for (Ability ability : abilities)
-    {
-      System.out.println("  " + Abilities.getIntFromAbility(ability));
-    }
-  }
-
-  private void readItemTextArea(String xmlPath)
-  {
-    Item item = ItemUtils.getItem(xmlPath);
-    taItem.setText((item == null) ? "" : item.getContent());
-  }
-
-  private void writeItem(String xmlPath)
-  {
-    Item item = ItemUtils.getItem(xmlPath);
-    if (!taItem.getText().equals(""))
-    {
-      item.setContent(taItem.getText());
-      if (ItemUtils.setItem(xmlPath, item))
-      {
-        JOptionPane.showMessageDialog(null, "Item successfully changed", "Success", JOptionPane.INFORMATION_MESSAGE);
-      }
-      else
-      {
-        JOptionPane.showMessageDialog(null, "Error: Item cannot be changed", "Error", JOptionPane.ERROR_MESSAGE);
-      }
-    }
-  }
 
   class InfoTextFieldListener implements DocumentListener
   {
@@ -918,8 +670,9 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
 
       boolean same = compareAbilities(currentAbilites, originalAbilities);
 
-      if (!same || !txtPath.getText().equals(originalXmlPath)
-        || !imgPath.getText().equals(originalImagePath)
+      if (!same || !tfTitle.getText().equals(originalTitle)
+        || !taDescription.getText().equals(originalDescription)
+        || !tfImgPath.getText().equals(originalImagePath)
         || cbOnce.isSelected() != originalOnce)
       {
         editor.setPanelDirty(ItemComponentProperties.class, true);
@@ -961,29 +714,30 @@ public class ItemComponentProperties extends javax.swing.JPanel implements Prope
   }
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
-  private javax.swing.JButton btApply;
-  private javax.swing.JButton btReset;
-  private javax.swing.JButton buttonBrowse;
+  private javax.swing.JButton btLoad;
+  private javax.swing.JButton btSave;
   private javax.swing.JButton buttonBrowseImg;
   private javax.swing.JCheckBox cbOnce;
   private javax.swing.JCheckBox cbRole1;
   private javax.swing.JCheckBox cbRole2;
   private javax.swing.JCheckBox cbRole3;
   private javax.swing.JCheckBox cbRole4;
-  private javax.swing.JCheckBox cbRoleAll;
-  private javax.swing.JTextField imgPath;
-  private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel2;
-  private javax.swing.JLabel jLabel3;
   private javax.swing.JPanel jPanel1;
-  private javax.swing.JPanel jPanel2;
   private javax.swing.JPanel jPanel3;
-  private javax.swing.JScrollPane jScrollPaneFiles;
-  private javax.swing.JScrollPane jScrollPaneImages;
-  private javax.swing.JScrollPane jScrollPaneTextArea;
-  private javax.swing.JList listFiles;
+  private javax.swing.JPanel jPanel4;
+  private javax.swing.JPanel jPanel5;
+  private javax.swing.JLabel lbTitle;
   private javax.swing.JList listImages;
-  private javax.swing.JTextArea taItem;
-  private javax.swing.JTextField txtPath;
+  private javax.swing.JPanel pnImgFiles;
+  private javax.swing.JPanel pnItemDescription;
+  private javax.swing.JPanel pnOnce;
+  private javax.swing.JPanel pnRoles;
+  private javax.swing.JPanel pnRolesOnce;
+  private javax.swing.JScrollPane spDesciption;
+  private javax.swing.JScrollPane spImages;
+  private javax.swing.JTextArea taDescription;
+  private javax.swing.JTextField tfImgPath;
+  private javax.swing.JTextField tfTitle;
   // End of variables declaration//GEN-END:variables
 }

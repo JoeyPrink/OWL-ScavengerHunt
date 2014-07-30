@@ -9,6 +9,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.ListCellRenderer;
@@ -16,10 +17,9 @@ import org.jdesktop.wonderland.client.comms.WonderlandSession;
 import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.modules.item.client.Item;
 import org.jdesktop.wonderland.modules.item.client.ItemComponent;
-import org.jdesktop.wonderland.modules.item.client.ScavengerHuntStudent;
-import org.jdesktop.wonderland.modules.item.client.StudentManager;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
 import org.jdesktop.wonderland.modules.item.common.Abilities.Ability;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 
 /**
  *
@@ -29,15 +29,22 @@ public class ItemListCellRenderer extends JLabel implements ListCellRenderer
 {
 
   private ArrayList<Item> itemEntryList;
+  private HashMap<String, ScavengerHuntStudent> students;
 
-  public ItemListCellRenderer(ArrayList<Item> itemEntryList)
+  public ItemListCellRenderer(ArrayList<Item> itemEntryList, HashMap<String, ScavengerHuntStudent> students)
   {
     this.itemEntryList = itemEntryList;
+    this.students = students;
   }
 
   public void setItemEntryList(ArrayList<Item> itemEntryList)
   {
     this.itemEntryList = itemEntryList;
+  }
+
+  public void setStudents(HashMap<String, ScavengerHuntStudent> students)
+  {
+    this.students = students;
   }
 
   @Override
@@ -51,7 +58,9 @@ public class ItemListCellRenderer extends JLabel implements ListCellRenderer
 
     ItemComponent comp = (ItemComponent) value;
 
-    setText(comp.getTitle());
+    String itemTitle = comp.getTitle();
+
+    setText((itemTitle.equals("")) ? "<empty_title>" : itemTitle);
     setOpaque(true);
 
     Ability[] abilities = comp.getAbilities();
@@ -60,7 +69,7 @@ public class ItemListCellRenderer extends JLabel implements ListCellRenderer
     // Is the user able to pick up this item?
     WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
     String userName = session.getUserID().getUsername();
-    ScavengerHuntStudent me = StudentManager.loadStudentFromFile(userName);
+    ScavengerHuntStudent me = students.get(userName);
     boolean canPickup = false;
     if (me != null)
     {
@@ -94,8 +103,6 @@ public class ItemListCellRenderer extends JLabel implements ListCellRenderer
     }
 
     Color color = (!someoneElseWasFaster && canPickup) ? Color.RED : Color.GRAY;
-
-    String itemTitle = comp.getTitle();
 
     ///////////////////////////////////////
     // Does the user already own this item?

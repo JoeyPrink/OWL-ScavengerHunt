@@ -26,10 +26,9 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="titelLabel" min="-2" pref="157" max="-2" attributes="0"/>
-                      <EmptySpace min="0" pref="32" max="32767" attributes="0"/>
+                      <Component id="titelLabel" pref="157" max="32767" attributes="0"/>
                   </Group>
-                  <Component id="jScrollPane2" max="32767" attributes="0"/>
+                  <Component id="jScrollPane2" alignment="0" max="32767" attributes="0"/>
                   <Component id="lbImage" alignment="0" max="32767" attributes="0"/>
               </Group>
               <EmptySpace min="14" pref="14" max="-2" attributes="0"/>

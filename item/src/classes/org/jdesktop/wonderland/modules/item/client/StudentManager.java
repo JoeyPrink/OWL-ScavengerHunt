@@ -12,22 +12,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.jdesktop.wonderland.client.cell.asset.AssetUtils;
 import org.jdesktop.wonderland.client.comms.WonderlandSession;
 import org.jdesktop.wonderland.client.login.LoginManager;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentCollection;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentNode;
 import org.jdesktop.wonderland.modules.contentrepo.common.ContentRepositoryException;
 import org.jdesktop.wonderland.modules.item.common.Abilities;
+import org.jdesktop.wonderland.modules.item.common.ScavengerHuntStudent;
 import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManager;
 import org.jdesktop.wonderland.modules.presencemanager.client.PresenceManagerFactory;
 import org.jdesktop.wonderland.modules.presencemanager.common.PresenceInfo;
@@ -42,12 +40,69 @@ import org.jdesktop.wonderland.modules.presencemanager.common.PresenceInfo;
 public class StudentManager
 {
 
-  public static final String iniFileName = "scavenger_hunt.ini";
-  private final ArrayList<ScavengerHuntGroup> groups;
+  private final String iniFileName = "scavenger_hunt.ini";
 
-  public StudentManager()
+  public String getIniFileName()
   {
-    this.groups = new ArrayList<ScavengerHuntGroup>();
+    return iniFileName;
+  }
+
+//  private final ArrayList<ScavengerHuntGroup> groups;
+  private final HashMap<String, ScavengerHuntStudent> students;
+  private boolean studentsLoaded = false;
+
+  private static StudentManager theInstance = null;
+
+  private ArrayList<UserObserver> observers;
+
+  public void addObserver(UserObserver observer)
+  {
+    if (!observers.contains(observer))
+    {
+      observers.add(observer);
+    }
+  }
+
+  public static StudentManager getInstance()
+  {
+    if (theInstance == null)
+    {
+      theInstance = new StudentManager();
+    }
+
+    return theInstance;
+  }
+
+  private StudentManager()
+  {
+//    this.groups = new ArrayList<ScavengerHuntGroup>();
+    this.students = new HashMap<String, ScavengerHuntStudent>();
+
+    this.observers = new ArrayList<UserObserver>();
+  }
+
+  public void saveStudent(ScavengerHuntStudent student)
+  {
+    try
+    {
+      createAndUploadNewFile(student.getUsername(),
+        Abilities.getIntFromAbility(student.getAbility()), -1);
+      students.put(student.getUsername(), student);
+
+      for (UserObserver observer : observers)
+      {
+        observer.userAbilitesChanged(student);
+        break; // only need to do it for the first observer, since StudentManager is a Singleton
+      }
+    }
+    catch (ContentRepositoryException ex)
+    {
+      Logger.getLogger(StudentManager.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    catch (IOException ex)
+    {
+      Logger.getLogger(StudentManager.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   public void saveStudents(Enumeration<ScavengerHuntStudent> studentsEnum)
@@ -55,58 +110,58 @@ public class StudentManager
     while (studentsEnum.hasMoreElements())
     {
       ScavengerHuntStudent student = studentsEnum.nextElement();
-      try
-      {
-//        System.out.println("Writing student " + student
-//          + ", new role is " + student.getAbility()
-//          + ", group id is " + "-1");  // TODO: find out real group
-        createAndUploadNewFile(student.getUsername(),
-          Abilities.getIntFromAbility(student.getAbility()), -1);
-      }
-      catch (ContentRepositoryException ex)
-      {
-        Logger.getLogger(StudentManager.class.getName()).log(Level.SEVERE, null, ex);
-      }
-      catch (IOException ex)
-      {
-        Logger.getLogger(StudentManager.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      saveStudent(student);
     }
   }
 
   public void loadStudents()
   {
-    groups.clear();
+    students.clear();
 
     WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
     PresenceManager pm = PresenceManagerFactory.getPresenceManager(session);
     PresenceInfo[] infos = pm.getAllUsers();
 
-    ScavengerHuntGroup group = new ScavengerHuntGroup("Group_1", -1);
-
     for (PresenceInfo info : infos)
     {
       String userName = info.getUserID().getUsername();
-
-//      ScavengerHuntStudent studentUnknown = new ScavengerHuntStudent(userName, Abilities.Ability.UNKNOWN);
-      ScavengerHuntStudent student = loadStudentFromFile(userName);
-      if (student != null)
+      if (!students.containsKey(userName))
       {
-        //add the moment give all students into one group
-        //TODO: change this
-        group.addStudent(student);
+//      JOptionPane.showMessageDialog(null, "load student " + userName);
+        ScavengerHuntStudent student = loadStudentFromFilePrivate(userName);
+        if (student != null)
+        {
+          students.put(userName, student);
+        }
       }
     }
 
-    groups.add(group);
+    studentsLoaded = true;
   }
 
-  public ArrayList<ScavengerHuntGroup> getGroups()
+  public HashMap<String, ScavengerHuntStudent> getStudents()
   {
-    return groups;
+    if (studentsLoaded)
+    {
+      return students;
+    }
+
+    loadStudents();
+    return students;
   }
 
-  public static ScavengerHuntStudent loadStudentFromFile(String userName)
+  public ScavengerHuntStudent loadStudentFromFile(String userName)
+  {
+    if (studentsLoaded)
+    {
+      return students.get(userName);
+    }
+
+    loadStudents();
+    return students.get(userName);
+  }
+
+  private ScavengerHuntStudent loadStudentFromFilePrivate(String userName)
   {
     ContentCollection fileRoot;
     List<ContentNode> children;
@@ -123,8 +178,8 @@ public class StudentManager
 
     // Try read file the first time
     Integer[] properties = new Integer[2]; // first role, second group
-    boolean success = readProperties(children, properties);
-
+    boolean success = readProperties(children, properties, userName);
+//    JOptionPane.showMessageDialog(null, "read success: " + success);
     if (success)
     {
       return new ScavengerHuntStudent(userName, Abilities.getAbilityFromInt(properties[0]));
@@ -154,7 +209,7 @@ public class StudentManager
 
       // Try read file the second time
       properties = new Integer[2]; // first role, second group
-      success = readProperties(children, properties);
+      success = readProperties(children, properties, userName);
 
       if (success)
       {
@@ -165,9 +220,10 @@ public class StudentManager
         return null;
       }
     }
+
   }
 
-  private static boolean readProperties(List<ContentNode> children, Integer[] properties)
+  private boolean readProperties(List<ContentNode> children, Integer[] properties, String userName)
   {
     boolean roleB = false;
     boolean groupB = false;
@@ -178,10 +234,12 @@ public class StudentManager
       {
         String filepath = "wlcontent:/" + child.getPath();
 
-        String content;
+        String content = null;
         try
         {
-          InputStream in = openFile(filepath);
+          InputStream in = ItemUtils.openFileForReading(userName,
+            ItemUtils.SUBDIRNAME_INI,
+            ItemUtils.getFileNameFromPath(filepath));
           content = readString(in);
         }
         catch (IOException ex)
@@ -189,6 +247,10 @@ public class StudentManager
           properties[0] = -1;
           properties[1] = -1;
           return false;
+        }
+        catch (ContentRepositoryException ex)
+        {
+          Logger.getLogger(StudentManager.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         StringTokenizer tokenizer = new StringTokenizer(content);
@@ -232,16 +294,16 @@ public class StudentManager
     return roleB && groupB;
   }
 
-  private static InputStream openFile(String path) throws MalformedURLException, IOException
-  {
-    URL documentURL = AssetUtils.getAssetURL(path);
-    URLConnection conn = documentURL.openConnection();
-    conn.connect();
-
-    return conn.getInputStream();
-  }
-
-  private static String readString(InputStream in) throws IOException
+//  private InputStream openFile(String path) throws MalformedURLException, IOException
+//  {
+//    URL documentURL = AssetUtils.getAssetURL(path);
+//    URLConnection conn = documentURL.openConnection();
+//    conn.setUseCaches(false);
+//    conn.connect();
+//
+//    return conn.getInputStream();
+//  }
+  private String readString(InputStream in) throws IOException
   {
     char[] buf = new char[2048];
     Reader r = new InputStreamReader(in);
@@ -255,17 +317,18 @@ public class StudentManager
       }
       s.append(buf, 0, n);
     }
+
     return s.toString();
   }
 
-  private static void createAndUploadNewFile(String userName, int role, int group) throws ContentRepositoryException, IOException
+  private void createAndUploadNewFile(String userName, int role, int group) throws ContentRepositoryException, IOException
   {
     File newFile = new File(iniFileName);
     writeTemplate(newFile, role, group);
     ItemUtils.uploadFileToServer(newFile, ItemUtils.SUBDIRNAME_INI, userName);
   }
 
-  private static void writeTemplate(File file, int role, int group) throws IOException
+  private void writeTemplate(File file, int role, int group) throws IOException
   {
     FileWriter writer = new FileWriter(file);
     BufferedWriter buffy = new BufferedWriter(writer);
@@ -277,6 +340,28 @@ public class StudentManager
     buffy.newLine();
 
     buffy.close();
+  }
+
+  public ArrayList<ScavengerHuntStudent> getStudentsWithAbility(List<Abilities.Ability> abilities)
+  {
+    ArrayList<ScavengerHuntStudent> students = new ArrayList<ScavengerHuntStudent>();
+
+    WonderlandSession session = LoginManager.getPrimary().getPrimarySession();
+    PresenceManager pm = PresenceManagerFactory.getPresenceManager(session);
+    PresenceInfo[] infos = pm.getAllUsers();
+
+    for (PresenceInfo info : infos)
+    {
+      String userName = info.getUserID().getUsername();
+
+      ScavengerHuntStudent student = loadStudentFromFile(userName);
+      if (student != null && student.getAbility() != null && abilities.contains(student.getAbility()))
+      {
+        students.add(student);
+      }
+    }
+
+    return students;
   }
 
 }
